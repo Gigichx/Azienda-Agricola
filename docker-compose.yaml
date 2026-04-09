@@ -2,7 +2,7 @@ version: '3.9'
 
 services:
   web:
-    image: php:8.2-apache
+    build: .
     container_name: php-web
     ports:
       - "8086:80"
@@ -10,18 +10,16 @@ services:
       - ./:/var/www/html
     depends_on:
       - db
-    environment:
-      - APACHE_DOCUMENT_ROOT=/var/www/html
     networks:
       - app-network
 
   db:
     image: mysql:8.0
     container_name: mysql-db
-    restart: none
+    restart: always
     environment:
       MYSQL_ROOT_PASSWORD: rootpassword
-      MYSQL_DATABASE: myapp_db
+      MYSQL_DATABASE: azienda_agricola
       MYSQL_USER: myuser
       MYSQL_PASSWORD: mypassword
     volumes:
@@ -32,7 +30,7 @@ services:
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
     container_name: phpmyadmin
-    restart: none
+    restart: always
     ports:
       - "8087:80"
     environment:
@@ -47,7 +45,6 @@ services:
 
 volumes:
   db_data:
-
 
 networks:
   app-network:
