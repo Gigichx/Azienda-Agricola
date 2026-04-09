@@ -1,0 +1,363 @@
+/**
+ * CARRELLO CSS
+ * Azienda Agricola
+ */
+
+/* ============================================
+   CARRELLO LAYOUT
+   ============================================ */
+.carrello-container {
+    display: grid;
+    grid-template-columns: 1fr 400px;
+    gap: var(--spacing-xl);
+}
+
+/* ============================================
+   CARRELLO ITEMS
+   ============================================ */
+.carrello-items {
+    background-color: var(--color-bg-card);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-xl);
+    box-shadow: var(--shadow-sm);
+}
+
+.carrello-item {
+    display: flex;
+    gap: var(--spacing-lg);
+    padding: var(--spacing-lg);
+    border-bottom: 2px solid var(--color-border-light);
+    transition: background-color var(--transition-fast);
+}
+
+.carrello-item:last-child {
+    border-bottom: none;
+}
+
+.carrello-item:hover {
+    background-color: var(--color-bg);
+}
+
+.item-image {
+    flex: 0 0 100px;
+    height: 100px;
+    background: linear-gradient(135deg, var(--color-bg) 0%, var(--color-border-light) 100%);
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    opacity: 0.3;
+}
+
+.item-details {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+}
+
+.item-nome {
+    font-family: var(--font-serif);
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text);
+    margin: 0;
+}
+
+.item-categoria {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-muted);
+}
+
+.item-prezzo-unitario {
+    font-size: var(--font-size-base);
+    color: var(--color-accent);
+    font-weight: var(--font-weight-medium);
+}
+
+.item-actions {
+    flex: 0 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: var(--spacing-md);
+}
+
+.item-quantita-control {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+}
+
+.quantita-input {
+    width: 60px;
+    text-align: center;
+    padding: var(--spacing-xs);
+    border: 2px solid var(--color-border);
+    border-radius: var(--radius-sm);
+}
+
+.item-totale {
+    font-family: var(--font-serif);
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-primary);
+}
+
+.item-remove {
+    background: none;
+    border: none;
+    color: var(--color-error);
+    cursor: pointer;
+    font-size: var(--font-size-sm);
+    text-decoration: underline;
+    padding: 0;
+    transition: opacity var(--transition-fast);
+}
+
+.item-remove:hover {
+    opacity: 0.7;
+}
+
+/* ============================================
+   CARRELLO RIEPILOGO
+   ============================================ */
+.carrello-riepilogo {
+    background-color: var(--color-bg-card);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-xl);
+    box-shadow: var(--shadow-sm);
+    position: sticky;
+    top: calc(var(--spacing-xl) + 60px);
+    height: fit-content;
+}
+
+.riepilogo-title {
+    font-family: var(--font-serif);
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text);
+    margin-bottom: var(--spacing-lg);
+    padding-bottom: var(--spacing-md);
+    border-bottom: 2px solid var(--color-border-light);
+}
+
+.riepilogo-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-sm) 0;
+    font-size: var(--font-size-base);
+}
+
+.riepilogo-label {
+    color: var(--color-text-muted);
+}
+
+.riepilogo-value {
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text);
+}
+
+.riepilogo-divider {
+    height: 2px;
+    background-color: var(--color-border-light);
+    margin: var(--spacing-md) 0;
+}
+
+.riepilogo-totale {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-md) 0;
+    font-family: var(--font-serif);
+}
+
+.totale-label {
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text);
+}
+
+.totale-value {
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-accent);
+}
+
+.riepilogo-actions {
+    margin-top: var(--spacing-lg);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+/* ============================================
+   CARRELLO VUOTO
+   ============================================ */
+.carrello-vuoto {
+    background-color: var(--color-bg-card);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-2xl);
+    text-align: center;
+    box-shadow: var(--shadow-sm);
+}
+
+.carrello-vuoto-icon {
+    font-size: 5rem;
+    margin-bottom: var(--spacing-lg);
+    opacity: 0.3;
+}
+
+.carrello-vuoto-message {
+    font-size: var(--font-size-lg);
+    color: var(--color-text-muted);
+    margin-bottom: var(--spacing-lg);
+}
+
+/* ============================================
+   CHECKOUT
+   ============================================ */
+.checkout-container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.checkout-step {
+    background-color: var(--color-bg-card);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-xl);
+    margin-bottom: var(--spacing-lg);
+    box-shadow: var(--shadow-sm);
+}
+
+.checkout-step-title {
+    font-family: var(--font-serif);
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text);
+    margin-bottom: var(--spacing-lg);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+}
+
+.step-number {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    background-color: var(--color-primary);
+    color: var(--color-text-light);
+    border-radius: 50%;
+    font-weight: var(--font-weight-bold);
+}
+
+.checkout-riepilogo {
+    background-color: var(--color-bg);
+    border: 2px solid var(--color-border-light);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-lg);
+}
+
+.riepilogo-item {
+    display: flex;
+    justify-content: space-between;
+    padding: var(--spacing-sm) 0;
+    font-size: var(--font-size-sm);
+}
+
+.checkout-note {
+    width: 100%;
+    min-height: 100px;
+}
+
+.conferma-ordine {
+    text-align: center;
+    padding: var(--spacing-2xl);
+}
+
+.conferma-icon {
+    font-size: 5rem;
+    color: var(--color-success);
+    margin-bottom: var(--spacing-lg);
+}
+
+.conferma-message {
+    font-size: var(--font-size-xl);
+    color: var(--color-text);
+    margin-bottom: var(--spacing-md);
+}
+
+.ordine-numero {
+    font-family: var(--font-serif);
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-primary);
+    margin-bottom: var(--spacing-xl);
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 1024px) {
+    .carrello-container {
+        grid-template-columns: 1fr;
+    }
+    
+    .carrello-riepilogo {
+        position: static;
+    }
+}
+
+@media (max-width: 768px) {
+    .carrello-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .item-image {
+        width: 100%;
+        height: 200px;
+        font-size: 5rem;
+    }
+    
+    .item-actions {
+        width: 100%;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .checkout-step {
+        padding: var(--spacing-lg);
+    }
+    
+    .checkout-step-title {
+        font-size: var(--font-size-lg);
+    }
+    
+    .step-number {
+        width: 2rem;
+        height: 2rem;
+        font-size: var(--font-size-sm);
+    }
+}
+
+@media (max-width: 480px) {
+    .carrello-items,
+    .carrello-riepilogo {
+        padding: var(--spacing-md);
+    }
+    
+    .item-totale {
+        font-size: var(--font-size-lg);
+    }
+    
+    .totale-value {
+        font-size: var(--font-size-xl);
+    }
+}

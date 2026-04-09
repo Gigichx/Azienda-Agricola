@@ -1,0 +1,184 @@
+/**
+ * NAVBAR CSS - Cliente
+ * Azienda Agricola
+ */
+
+/* ============================================
+   NAVBAR BASE
+   ============================================ */
+.navbar {
+    background-color: var(--color-primary);
+    box-shadow: var(--shadow-md);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.navbar-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-lg);
+    padding: var(--spacing-md) var(--spacing-lg);
+}
+
+/* ============================================
+   NAVBAR BRAND/LOGO
+   ============================================ */
+.navbar-brand a {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    text-decoration: none;
+    color: var(--color-text-light);
+    font-family: var(--font-serif);
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-bold);
+}
+
+.navbar-brand a:hover {
+    text-decoration: none;
+    opacity: 0.9;
+}
+
+.logo-icon {
+    font-size: var(--font-size-2xl);
+}
+
+.logo-text {
+    color: var(--color-text-light);
+}
+
+/* ============================================
+   NAVBAR MENU
+   ============================================ */
+.navbar-menu {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-lg);
+    flex: 1;
+    justify-content: center;
+}
+
+.nav-link {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-light);
+    text-decoration: none;
+    border-radius: var(--radius-md);
+    transition: all var(--transition-fast);
+}
+
+.nav-link:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: var(--color-text-light);
+    text-decoration: none;
+}
+
+.nav-link.active {
+    background-color: rgba(255, 255, 255, 0.15);
+    font-weight: var(--font-weight-semibold);
+}
+
+.nav-link.active::after {
+    content: '';
+    position: absolute;
+    bottom: -var(--spacing-md);
+    left: 0;
+    right: 0;
+    height: 3px;
+    background-color: var(--color-text-light);
+    border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+}
+
+/* Badge nel menu (es. carrello) */
+.nav-link .badge {
+    margin-left: var(--spacing-xs);
+}
+
+/* ============================================
+   NAVBAR USER
+   ============================================ */
+.navbar-user {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+}
+
+.user-welcome {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-light);
+    font-weight: var(--font-weight-medium);
+}
+
+/* ============================================
+   MOBILE MENU TOGGLE
+   ============================================ */
+.navbar-toggle {
+    display: none;
+    background: none;
+    border: none;
+    color: var(--color-text-light);
+    font-size: var(--font-size-2xl);
+    cursor: pointer;
+    padding: var(--spacing-xs);
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 968px) {
+    .navbar-container {
+        flex-wrap: wrap;
+    }
+    
+    .navbar-menu {
+        order: 3;
+        width: 100%;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0;
+        display: none;
+        margin-top: var(--spacing-md);
+    }
+    
+    .navbar-menu.active {
+        display: flex;
+    }
+    
+    .nav-link {
+        padding: var(--spacing-md);
+        border-radius: 0;
+    }
+    
+    .nav-link.active::after {
+        display: none;
+    }
+    
+    .navbar-toggle {
+        display: block;
+    }
+    
+    .user-welcome {
+        display: none;
+    }
+}
+
+@media (max-width: 480px) {
+    .navbar-brand a {
+        font-size: var(--font-size-lg);
+    }
+    
+    .logo-text {
+        display: none;
+    }
+    
+    .navbar-container {
+        padding: var(--spacing-sm) var(--spacing-md);
+    }
+}

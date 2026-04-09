@@ -1,0 +1,301 @@
+/**
+ * LAYOUT CSS
+ * Azienda Agricola
+ */
+
+/* ============================================
+   PAGE HEADER
+   ============================================ */
+.page-header {
+    margin-bottom: var(--spacing-2xl);
+}
+
+.page-title {
+    font-family: var(--font-serif);
+    font-size: var(--font-size-4xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text);
+    margin-bottom: var(--spacing-sm);
+}
+
+.page-subtitle {
+    font-size: var(--font-size-lg);
+    color: var(--color-text-muted);
+    margin-bottom: 0;
+}
+
+.page-header-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-2xl);
+}
+
+.page-header-actions .page-title {
+    margin-bottom: 0;
+}
+
+/* ============================================
+   SECTION
+   ============================================ */
+.section {
+    margin-bottom: var(--spacing-2xl);
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-lg);
+}
+
+.section-title {
+    font-family: var(--font-serif);
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text);
+    margin: 0;
+}
+
+.section-subtitle {
+    font-size: var(--font-size-base);
+    color: var(--color-text-muted);
+    margin-top: var(--spacing-xs);
+}
+
+.section-actions {
+    display: flex;
+    gap: var(--spacing-sm);
+}
+
+/* ============================================
+   GRID SYSTEM
+   ============================================ */
+.row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-lg);
+    margin-bottom: var(--spacing-lg);
+}
+
+.col {
+    flex: 1;
+    min-width: 0;
+}
+
+.col-2 {
+    flex: 0 0 calc(50% - var(--spacing-lg) / 2);
+}
+
+.col-3 {
+    flex: 0 0 calc(33.333% - var(--spacing-lg) * 2 / 3);
+}
+
+.col-4 {
+    flex: 0 0 calc(25% - var(--spacing-lg) * 3 / 4);
+}
+
+.col-6 {
+    flex: 0 0 calc(50% - var(--spacing-lg) / 2);
+}
+
+.col-8 {
+    flex: 0 0 calc(66.666% - var(--spacing-lg) / 3);
+}
+
+/* ============================================
+   BOX/PANEL
+   ============================================ */
+.box {
+    background-color: var(--color-bg-card);
+    border: 2px solid var(--color-border-light);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    margin-bottom: var(--spacing-lg);
+}
+
+.box-header {
+    margin-bottom: var(--spacing-md);
+    padding-bottom: var(--spacing-md);
+    border-bottom: 2px solid var(--color-border-light);
+}
+
+.box-title {
+    font-family: var(--font-serif);
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text);
+    margin: 0;
+}
+
+.box-body {
+    /* Contenuto principale */
+}
+
+.box-footer {
+    margin-top: var(--spacing-md);
+    padding-top: var(--spacing-md);
+    border-top: 2px solid var(--color-border-light);
+}
+
+/* ============================================
+   SIDEBAR LAYOUT
+   ============================================ */
+.layout-sidebar {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: var(--spacing-xl);
+}
+
+.sidebar {
+    background-color: var(--color-bg-card);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    height: fit-content;
+    position: sticky;
+    top: calc(var(--spacing-xl) + 60px); /* Offset per navbar */
+}
+
+.sidebar-title {
+    font-family: var(--font-serif);
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text);
+    margin-bottom: var(--spacing-md);
+}
+
+.sidebar-menu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.sidebar-menu li {
+    margin-bottom: var(--spacing-xs);
+}
+
+.sidebar-menu a {
+    display: block;
+    padding: var(--spacing-sm) var(--spacing-md);
+    color: var(--color-text);
+    text-decoration: none;
+    border-radius: var(--radius-md);
+    transition: all var(--transition-fast);
+}
+
+.sidebar-menu a:hover {
+    background-color: var(--color-bg);
+    color: var(--color-primary);
+    text-decoration: none;
+}
+
+.sidebar-menu a.active {
+    background-color: var(--color-primary);
+    color: var(--color-text-light);
+    font-weight: var(--font-weight-medium);
+}
+
+.main-area {
+    /* Area contenuto principale */
+}
+
+/* ============================================
+   DIVIDER
+   ============================================ */
+.divider {
+    height: 2px;
+    background-color: var(--color-border-light);
+    margin: var(--spacing-xl) 0;
+    border: none;
+}
+
+.divider-dashed {
+    height: 1px;
+    background-image: linear-gradient(to right, var(--color-border) 50%, transparent 50%);
+    background-size: 8px 1px;
+    background-repeat: repeat-x;
+}
+
+/* ============================================
+   SPACER
+   ============================================ */
+.spacer-sm {
+    height: var(--spacing-sm);
+}
+
+.spacer-md {
+    height: var(--spacing-md);
+}
+
+.spacer-lg {
+    height: var(--spacing-lg);
+}
+
+.spacer-xl {
+    height: var(--spacing-xl);
+}
+
+.spacer-2xl {
+    height: var(--spacing-2xl);
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 1024px) {
+    .layout-sidebar {
+        grid-template-columns: 1fr;
+    }
+    
+    .sidebar {
+        position: static;
+    }
+}
+
+@media (max-width: 768px) {
+    .row {
+        gap: var(--spacing-md);
+    }
+    
+    .col-2,
+    .col-3,
+    .col-4,
+    .col-6,
+    .col-8 {
+        flex: 0 0 100%;
+    }
+    
+    .page-header-actions {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--spacing-md);
+    }
+    
+    .section-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--spacing-sm);
+    }
+    
+    .section-actions {
+        width: 100%;
+    }
+    
+    .page-title {
+        font-size: var(--font-size-3xl);
+    }
+    
+    .section-title {
+        font-size: var(--font-size-xl);
+    }
+}
+
+@media (max-width: 480px) {
+    .box {
+        padding: var(--spacing-md);
+    }
+    
+    .page-title {
+        font-size: var(--font-size-2xl);
+    }
+}

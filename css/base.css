@@ -1,0 +1,298 @@
+/**
+ * BASE CSS - Variabili, Reset e Tipografia
+ * Azienda Agricola - Palette Naturale Elegante
+ */
+
+/* ============================================
+   VARIABILI CSS
+   ============================================ */
+:root {
+    /* Palette colori */
+    --color-primary: #6B7C4A;           /* Verde oliva */
+    --color-primary-dark: #556338;      /* Verde oliva scuro */
+    --color-primary-light: #8A9B69;     /* Verde oliva chiaro */
+    
+    --color-accent: #8B5E3C;            /* Marrone terra */
+    --color-accent-dark: #6F4A2E;       /* Marrone scuro */
+    --color-accent-light: #A87856;      /* Marrone chiaro */
+    
+    --color-bg: #F5F0E8;                /* Beige caldo */
+    --color-bg-card: #FDFAF5;           /* Bianco avorio */
+    --color-bg-light: #FFFFFF;          /* Bianco puro */
+    
+    --color-text: #2C2416;              /* Testo scuro */
+    --color-text-muted: #6B6358;        /* Testo secondario */
+    --color-text-light: #FFFFFF;        /* Testo chiaro */
+    
+    /* Colori semantici */
+    --color-success: #5C8B4A;           /* Verde successo */
+    --color-error: #B85C4A;             /* Rosso errore */
+    --color-warning: #D4A348;           /* Giallo avviso */
+    --color-info: #5A8DB8;              /* Blu info */
+    
+    /* Bordi */
+    --color-border: #D9D0C4;            /* Bordo principale */
+    --color-border-light: #E8E3DA;      /* Bordo chiaro */
+    
+    /* Ombre */
+    --shadow-sm: 0 1px 2px rgba(44, 36, 22, 0.05);
+    --shadow-md: 0 4px 6px rgba(44, 36, 22, 0.1);
+    --shadow-lg: 0 10px 20px rgba(44, 36, 22, 0.15);
+    
+    /* Spaziature */
+    --spacing-xs: 0.25rem;     /* 4px */
+    --spacing-sm: 0.5rem;      /* 8px */
+    --spacing-md: 1rem;        /* 16px */
+    --spacing-lg: 1.5rem;      /* 24px */
+    --spacing-xl: 2rem;        /* 32px */
+    --spacing-2xl: 3rem;       /* 48px */
+    
+    /* Border radius */
+    --radius-sm: 4px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --radius-full: 9999px;
+    
+    /* Transizioni */
+    --transition-fast: 150ms ease;
+    --transition-normal: 250ms ease;
+    --transition-slow: 350ms ease;
+    
+    /* Tipografia */
+    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-serif: 'Playfair Display', Georgia, serif;
+    
+    --font-size-xs: 0.75rem;     /* 12px */
+    --font-size-sm: 0.875rem;    /* 14px */
+    --font-size-base: 1rem;      /* 16px */
+    --font-size-lg: 1.125rem;    /* 18px */
+    --font-size-xl: 1.25rem;     /* 20px */
+    --font-size-2xl: 1.5rem;     /* 24px */
+    --font-size-3xl: 1.875rem;   /* 30px */
+    --font-size-4xl: 2.25rem;    /* 36px */
+    
+    --font-weight-normal: 400;
+    --font-weight-medium: 500;
+    --font-weight-semibold: 600;
+    --font-weight-bold: 700;
+    
+    --line-height-tight: 1.25;
+    --line-height-normal: 1.5;
+    --line-height-relaxed: 1.75;
+}
+
+/* ============================================
+   RESET CSS
+   ============================================ */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+    font-family: var(--font-sans);
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-normal);
+    line-height: var(--line-height-normal);
+    color: var(--color-text);
+    background-color: var(--color-bg);
+    min-height: 100vh;
+}
+
+/* ============================================
+   TIPOGRAFIA
+   ============================================ */
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-serif);
+    font-weight: var(--font-weight-bold);
+    line-height: var(--line-height-tight);
+    color: var(--color-text);
+    margin-bottom: var(--spacing-md);
+}
+
+h1 {
+    font-size: var(--font-size-4xl);
+}
+
+h2 {
+    font-size: var(--font-size-3xl);
+}
+
+h3 {
+    font-size: var(--font-size-2xl);
+}
+
+h4 {
+    font-size: var(--font-size-xl);
+}
+
+h5 {
+    font-size: var(--font-size-lg);
+}
+
+h6 {
+    font-size: var(--font-size-base);
+}
+
+p {
+    margin-bottom: var(--spacing-md);
+}
+
+a {
+    color: var(--color-primary);
+    text-decoration: none;
+    transition: color var(--transition-fast);
+}
+
+a:hover {
+    color: var(--color-primary-dark);
+    text-decoration: underline;
+}
+
+strong, b {
+    font-weight: var(--font-weight-semibold);
+}
+
+small {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-muted);
+}
+
+/* ============================================
+   UTILITY CLASSES
+   ============================================ */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 var(--spacing-lg);
+}
+
+.container-narrow {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 var(--spacing-lg);
+}
+
+.text-center {
+    text-align: center;
+}
+
+.text-right {
+    text-align: right;
+}
+
+.text-muted {
+    color: var(--color-text-muted);
+}
+
+.text-primary {
+    color: var(--color-primary);
+}
+
+.text-accent {
+    color: var(--color-accent);
+}
+
+.text-success {
+    color: var(--color-success);
+}
+
+.text-error {
+    color: var(--color-error);
+}
+
+.text-warning {
+    color: var(--color-warning);
+}
+
+.mb-0 { margin-bottom: 0; }
+.mb-sm { margin-bottom: var(--spacing-sm); }
+.mb-md { margin-bottom: var(--spacing-md); }
+.mb-lg { margin-bottom: var(--spacing-lg); }
+.mb-xl { margin-bottom: var(--spacing-xl); }
+
+.mt-0 { margin-top: 0; }
+.mt-sm { margin-top: var(--spacing-sm); }
+.mt-md { margin-top: var(--spacing-md); }
+.mt-lg { margin-top: var(--spacing-lg); }
+.mt-xl { margin-top: var(--spacing-xl); }
+
+/* ============================================
+   LAYOUT GLOBALE
+   ============================================ */
+.main-content {
+    min-height: calc(100vh - 140px); /* Altezza viewport - header - footer */
+    padding: var(--spacing-2xl) 0;
+}
+
+.site-footer {
+    background-color: var(--color-text);
+    color: var(--color-text-light);
+    padding: var(--spacing-xl) 0;
+    margin-top: var(--spacing-2xl);
+}
+
+.footer-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--spacing-lg);
+}
+
+.footer-info p {
+    margin: 0;
+    font-size: var(--font-size-sm);
+}
+
+.footer-links {
+    display: flex;
+    gap: var(--spacing-lg);
+}
+
+.footer-links a {
+    color: var(--color-text-light);
+    font-size: var(--font-size-sm);
+    opacity: 0.8;
+    transition: opacity var(--transition-fast);
+}
+
+.footer-links a:hover {
+    opacity: 1;
+    text-decoration: none;
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 768px) {
+    :root {
+        --font-size-4xl: 1.75rem;
+        --font-size-3xl: 1.5rem;
+        --font-size-2xl: 1.25rem;
+    }
+    
+    .container {
+        padding: 0 var(--spacing-md);
+    }
+    
+    .footer-container {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .footer-links {
+        flex-direction: column;
+        gap: var(--spacing-sm);
+    }
+    
+    .main-content {
+        padding: var(--spacing-lg) 0;
+    }
+}

@@ -1,0 +1,202 @@
+/**
+ * MODALS CSS
+ * Azienda Agricola
+ */
+
+/* ============================================
+   MODAL OVERLAY
+   ============================================ */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(44, 36, 22, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    opacity: 0;
+    visibility: hidden;
+    transition: all var(--transition-normal);
+}
+
+.modal-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* ============================================
+   MODAL
+   ============================================ */
+.modal {
+    background-color: var(--color-bg-card);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    max-width: 600px;
+    width: 90%;
+    max-height: 90vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transform: scale(0.9);
+    transition: transform var(--transition-normal);
+}
+
+.modal-overlay.active .modal {
+    transform: scale(1);
+}
+
+/* ============================================
+   MODAL HEADER
+   ============================================ */
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-lg) var(--spacing-xl);
+    border-bottom: 2px solid var(--color-border-light);
+    background-color: var(--color-bg);
+}
+
+.modal-title {
+    font-family: var(--font-serif);
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text);
+    margin: 0;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: var(--font-size-2xl);
+    color: var(--color-text-muted);
+    cursor: pointer;
+    padding: 0;
+    width: 2rem;
+    height: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-sm);
+    transition: all var(--transition-fast);
+}
+
+.modal-close:hover {
+    background-color: var(--color-border-light);
+    color: var(--color-text);
+}
+
+/* ============================================
+   MODAL BODY
+   ============================================ */
+.modal-body {
+    padding: var(--spacing-xl);
+    overflow-y: auto;
+    flex: 1;
+}
+
+/* ============================================
+   MODAL FOOTER
+   ============================================ */
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-lg) var(--spacing-xl);
+    border-top: 2px solid var(--color-border-light);
+    background-color: var(--color-bg);
+}
+
+/* ============================================
+   MODAL SIZES
+   ============================================ */
+.modal-sm {
+    max-width: 400px;
+}
+
+.modal-lg {
+    max-width: 800px;
+}
+
+.modal-xl {
+    max-width: 1200px;
+}
+
+.modal-full {
+    max-width: 95%;
+    max-height: 95vh;
+}
+
+/* ============================================
+   CONFIRM DIALOG
+   ============================================ */
+.confirm-dialog {
+    max-width: 450px;
+    text-align: center;
+}
+
+.confirm-dialog .modal-body {
+    padding: var(--spacing-2xl);
+}
+
+.confirm-icon {
+    font-size: 4rem;
+    margin-bottom: var(--spacing-lg);
+}
+
+.confirm-icon.warning {
+    color: var(--color-warning);
+}
+
+.confirm-icon.error {
+    color: var(--color-error);
+}
+
+.confirm-icon.success {
+    color: var(--color-success);
+}
+
+.confirm-icon.info {
+    color: var(--color-info);
+}
+
+.confirm-message {
+    font-size: var(--font-size-lg);
+    color: var(--color-text);
+    margin-bottom: var(--spacing-lg);
+}
+
+.confirm-actions {
+    display: flex;
+    gap: var(--spacing-sm);
+    justify-content: center;
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 768px) {
+    .modal {
+        width: 95%;
+        max-height: 95vh;
+    }
+    
+    .modal-header,
+    .modal-body,
+    .modal-footer {
+        padding: var(--spacing-md) var(--spacing-lg);
+    }
+    
+    .modal-title {
+        font-size: var(--font-size-lg);
+    }
+    
+    .modal-lg,
+    .modal-xl,
+    .modal-full {
+        max-width: 95%;
+    }
+}

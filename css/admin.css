@@ -1,0 +1,412 @@
+/**
+ * ADMIN.CSS - Backend Amministrazione
+ * Azienda Agricola
+ * 
+ * File principale che importa tutti i CSS per l'area admin
+ */
+
+/* Base */
+@import url('base.css');
+
+/* Components */
+@import url('buttons.css');
+@import url('forms.css');
+@import url('alerts.css');
+@import url('cards.css');
+@import url('tables.css');
+@import url('modals.css');
+
+/* Layout */
+@import url('layout.css');
+@import url('navbar-admin.css');
+
+/* Pages - Admin */
+@import url('dashboard.css');
+
+/* ============================================
+   ADMIN SPECIFIC STYLES
+   ============================================ */
+.admin-area {
+    background-color: var(--color-bg);
+}
+
+/* Admin Page Layouts */
+.admin-page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-2xl);
+    padding: var(--spacing-lg);
+    background-color: var(--color-bg-card);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+}
+
+.admin-page-title {
+    font-family: var(--font-serif);
+    font-size: var(--font-size-3xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text);
+    margin: 0;
+}
+
+.admin-page-actions {
+    display: flex;
+    gap: var(--spacing-sm);
+}
+
+/* Form Layout Admin */
+.form-admin-container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.form-admin {
+    background-color: var(--color-bg-card);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-xl);
+    box-shadow: var(--shadow-sm);
+}
+
+.form-section {
+    margin-bottom: var(--spacing-2xl);
+}
+
+.form-section:last-child {
+    margin-bottom: 0;
+}
+
+.form-section-title {
+    font-family: var(--font-serif);
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text);
+    margin-bottom: var(--spacing-lg);
+    padding-bottom: var(--spacing-md);
+    border-bottom: 2px solid var(--color-border-light);
+}
+
+/* Gestione Prodotti */
+.prodotti-container {
+    background-color: var(--color-bg-card);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+}
+
+.prodotti-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-lg);
+    background-color: var(--color-bg);
+    border-bottom: 2px solid var(--color-border-light);
+}
+
+.prodotti-search {
+    flex: 1;
+    max-width: 400px;
+}
+
+.prodotto-row {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+}
+
+.prodotto-icon {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, var(--color-bg) 0%, var(--color-border-light) 100%);
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--font-size-xl);
+    opacity: 0.5;
+}
+
+.prodotto-info {
+    flex: 1;
+}
+
+.prodotto-nome {
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text);
+    margin-bottom: var(--spacing-xs);
+}
+
+.prodotto-categoria {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-muted);
+}
+
+/* Lavorazioni */
+.lavorazione-form {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-lg);
+}
+
+.lavorazione-riepilogo {
+    padding: var(--spacing-lg);
+    background-color: var(--color-bg);
+    border-radius: var(--radius-md);
+    margin-top: var(--spacing-lg);
+}
+
+.riepilogo-row {
+    display: flex;
+    justify-content: space-between;
+    padding: var(--spacing-sm) 0;
+    font-size: var(--font-size-base);
+}
+
+.riepilogo-label {
+    color: var(--color-text-muted);
+    font-weight: var(--font-weight-medium);
+}
+
+.riepilogo-value {
+    color: var(--color-text);
+    font-weight: var(--font-weight-semibold);
+}
+
+.riepilogo-value.highlight {
+    color: var(--color-primary);
+    font-size: var(--font-size-lg);
+}
+
+/* Vendite Manuali */
+.vendita-form-container {
+    display: grid;
+    grid-template-columns: 1fr 400px;
+    gap: var(--spacing-xl);
+}
+
+.vendita-items {
+    background-color: var(--color-bg-card);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    box-shadow: var(--shadow-sm);
+}
+
+.item-vendita {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-md);
+    background-color: var(--color-bg);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--spacing-sm);
+}
+
+.item-vendita-info {
+    flex: 1;
+}
+
+.item-vendita-nome {
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text);
+    margin-bottom: var(--spacing-xs);
+}
+
+.item-vendita-dettagli {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-muted);
+}
+
+.item-vendita-prezzo {
+    font-family: var(--font-serif);
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-accent);
+    margin-left: var(--spacing-md);
+}
+
+.vendita-totali {
+    background-color: var(--color-bg-card);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    box-shadow: var(--shadow-sm);
+    position: sticky;
+    top: calc(var(--spacing-xl) + 60px);
+}
+
+.sconto-control {
+    display: flex;
+    gap: var(--spacing-sm);
+    margin: var(--spacing-md) 0;
+}
+
+.sconto-input {
+    flex: 1;
+}
+
+/* Archivio / Report */
+.archivio-container {
+    background-color: var(--color-bg-card);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+}
+
+.archivio-filtri {
+    padding: var(--spacing-lg);
+    background-color: var(--color-bg);
+    border-bottom: 2px solid var(--color-border-light);
+}
+
+.archivio-risultati {
+    padding: var(--spacing-lg);
+}
+
+.archivio-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-lg);
+}
+
+.risultati-count {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-muted);
+}
+
+.export-actions {
+    display: flex;
+    gap: var(--spacing-sm);
+}
+
+/* Riserve Grid */
+.riserve-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: var(--spacing-lg);
+}
+
+.riserva-card {
+    background-color: var(--color-bg-card);
+    border: 2px solid var(--color-border-light);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    transition: all var(--transition-normal);
+}
+
+.riserva-card:hover {
+    box-shadow: var(--shadow-md);
+    border-color: var(--color-primary);
+}
+
+.riserva-header {
+    margin-bottom: var(--spacing-md);
+}
+
+.riserva-nome {
+    font-family: var(--font-serif);
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text);
+    margin-bottom: var(--spacing-xs);
+}
+
+.riserva-prodotto {
+    font-size: var(--font-size-sm);
+    color: var(--color-primary);
+    font-weight: var(--font-weight-medium);
+}
+
+.riserva-quantita {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-md);
+    background-color: var(--color-bg);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--spacing-md);
+}
+
+.quantita-label {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-muted);
+}
+
+.quantita-valore {
+    font-family: var(--font-serif);
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-primary);
+}
+
+.riserva-meta {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-muted);
+    margin-bottom: var(--spacing-sm);
+}
+
+.riserva-actions {
+    display: flex;
+    gap: var(--spacing-sm);
+    margin-top: var(--spacing-md);
+}
+
+/* Responsive Admin */
+@media (max-width: 1024px) {
+    .lavorazione-form {
+        grid-template-columns: 1fr;
+    }
+    
+    .vendita-form-container {
+        grid-template-columns: 1fr;
+    }
+    
+    .vendita-totali {
+        position: static;
+    }
+}
+
+@media (max-width: 768px) {
+    .admin-page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--spacing-md);
+    }
+    
+    .admin-page-actions {
+        width: 100%;
+    }
+    
+    .prodotti-toolbar {
+        flex-direction: column;
+        gap: var(--spacing-md);
+    }
+    
+    .prodotti-search {
+        max-width: none;
+        width: 100%;
+    }
+    
+    .archivio-toolbar {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--spacing-sm);
+    }
+    
+    .export-actions {
+        width: 100%;
+    }
+    
+    .riserve-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .form-admin {
+        padding: var(--spacing-lg);
+    }
+    
+    .admin-page-title {
+        font-size: var(--font-size-2xl);
+    }
+}
