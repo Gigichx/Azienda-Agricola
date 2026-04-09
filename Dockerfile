@@ -8,7 +8,7 @@ RUN docker-php-ext-install mysqli && docker-php-ext-enable mysqli
 RUN docker-php-ext-install pdo pdo_mysql
 
 # Copia il codice PHP nel container
-COPY ./src /var/www/html
+COPY ./ /var/www/html
 
 # Imposta la directory di lavoro
 WORKDIR /var/www/html
