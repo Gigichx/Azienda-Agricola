@@ -36,6 +36,13 @@ $dettagli = fetchAll($conn,
     [$idVendita]
 );
 
+// Calcola imponibile e IVA dal totale pagato
+$totalePagato = $ordine['totalePagato'];
+$ivaPerc      = 22;
+// totalePagato = imponibile * 1.22 => imponibile = totalePagato / 1.22
+$imponibile   = round($totalePagato / 1.22, 2);
+$ivaAmt       = round($totalePagato - $imponibile, 2);
+
 $pageTitle = 'Ordine Confermato';
 
 include '../includes/header_cliente.php';
@@ -46,9 +53,8 @@ include '../includes/header_cliente.php';
 
         <!-- Icona successo -->
         <div class="text-center mb-4">
-            <div class="d-inline-flex align-items-center justify-content-center rounded-circle bg-success bg-opacity-10 mb-3"
-                 style="width:72px;height:72px">
-                <i class="fas fa-check fa-2x text-success"></i>
+            <div class="success-icon">
+                <i class="fas fa-check fa-2x"></i>
             </div>
             <h2 class="h3 fw-bold mb-1">Ordine confermato!</h2>
             <p class="text-muted">
@@ -59,25 +65,35 @@ include '../includes/header_cliente.php';
         <!-- Riepilogo -->
         <div class="card border-0 shadow-sm mb-4">
             <div class="card-header bg-transparent border-0 pb-0">
-                <h6 class="fw-semibold mb-0"><i class="fas fa-receipt me-2 text-muted"></i>Dettagli ordine</h6>
+                <h6 class="fw-semibold mb-0">
+                    <i class="fas fa-receipt me-2 text-muted"></i>Dettagli ordine
+                </h6>
             </div>
             <div class="card-body">
                 <table class="table table-borderless table-sm mb-3">
                     <tr>
-                        <td class="text-muted ps-0">Data</td>
+                        <td class="text-muted ps-0"><i class="fas fa-calendar-alt me-1"></i>Data</td>
                         <td class="fw-semibold"><?php echo formatDate($ordine['dataVendita'], true); ?></td>
                     </tr>
                     <tr>
-                        <td class="text-muted ps-0">Punto vendita</td>
+                        <td class="text-muted ps-0"><i class="fas fa-map-marker-alt me-1"></i>Punto vendita</td>
                         <td><?php echo htmlspecialchars($ordine['nomeLuogo']); ?></td>
                     </tr>
                     <tr>
-                        <td class="text-muted ps-0">Totale pagato</td>
-                        <td class="fw-bold text-success fs-5"><?php echo formatPrice($ordine['totalePagato']); ?></td>
+                        <td class="text-muted ps-0"><i class="fas fa-calculator me-1"></i>Imponibile</td>
+                        <td><?php echo formatPrice($imponibile); ?></td>
+                    </tr>
+                    <tr>
+                        <td class="text-muted ps-0"><i class="fas fa-percent me-1"></i>IVA 22%</td>
+                        <td><?php echo formatPrice($ivaAmt); ?></td>
+                    </tr>
+                    <tr class="fw-bold">
+                        <td class="text-muted ps-0"><i class="fas fa-euro-sign me-1"></i>Totale pagato</td>
+                        <td class="text-success fs-5"><?php echo formatPrice($totalePagato); ?></td>
                     </tr>
                     <?php if ($ordine['note']): ?>
                     <tr>
-                        <td class="text-muted ps-0">Note</td>
+                        <td class="text-muted ps-0"><i class="fas fa-sticky-note me-1"></i>Note</td>
                         <td><?php echo htmlspecialchars($ordine['note']); ?></td>
                     </tr>
                     <?php endif; ?>
@@ -90,6 +106,7 @@ include '../includes/header_cliente.php';
                     <?php foreach ($dettagli as $det): ?>
                     <li class="d-flex justify-content-between py-1 border-bottom small">
                         <span>
+                            <i class="fas fa-seedling me-1 text-success" style="font-size:.7rem"></i>
                             <?php echo htmlspecialchars($det['nomeProdotto']); ?>
                             <?php if ($det['quantita']): ?>
                                 <span class="text-muted">&times; <?php echo $det['quantita']; ?></span>
@@ -98,7 +115,7 @@ include '../includes/header_cliente.php';
                                 <span class="text-muted">&mdash; <?php echo formatWeight($det['pesoVenduto'], 'kg'); ?></span>
                             <?php endif; ?>
                             <?php if ($det['omaggio']): ?>
-                                <span class="badge bg-success-subtle text-success border border-success-subtle ms-1">Omaggio</span>
+                                <span class="badge-omaggio ms-1">Omaggio</span>
                             <?php endif; ?>
                         </span>
                         <span class="fw-semibold">
@@ -114,7 +131,7 @@ include '../includes/header_cliente.php';
         <!-- CTA -->
         <div class="d-flex gap-2">
             <a href="/cliente/profilo.php" class="btn btn-success flex-fill">
-                <i class="fas fa-receipt me-1"></i>I miei ordini
+                <i class="fas fa-history me-1"></i>I miei ordini
             </a>
             <a href="/cliente/catalogo.php" class="btn btn-outline-secondary flex-fill">
                 <i class="fas fa-store me-1"></i>Continua a comprare

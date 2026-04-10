@@ -1,15 +1,20 @@
     </div><!-- /.container -->
-</main>
+</main><!-- /.cliente-main -->
 
-<footer class="border-top py-3 bg-white mt-auto">
-    <div class="container d-flex justify-content-between align-items-center">
-        <small class="text-muted">
-            &copy; <?php echo date('Y'); ?> <?php echo defined('APP_NAME') ? APP_NAME : 'Azienda Agricola'; ?>.
-            Tutti i diritti riservati.
-        </small>
-        <small class="text-muted d-none d-sm-block">
-            <i class="fas fa-leaf text-success me-1"></i>Gestionale agricolo
-        </small>
+<footer class="cliente-footer">
+    <div class="container">
+        <div class="footer-inner">
+            <div class="footer-brand">
+                <i class="fas fa-leaf text-success me-1"></i>
+                <strong><?php echo defined('APP_NAME') ? APP_NAME : 'Azienda Agricola'; ?></strong>
+            </div>
+            <div class="footer-copy">
+                &copy; <?php echo date('Y'); ?> &mdash; Tutti i diritti riservati
+            </div>
+            <div class="footer-piva">
+                <i class="fas fa-building me-1"></i>P.IVA: 01234567890
+            </div>
+        </div>
     </div>
 </footer>
 

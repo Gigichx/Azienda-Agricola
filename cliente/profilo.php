@@ -7,7 +7,16 @@ require_once '../includes/db.php';
 require_once '../includes/auth.php';
 require_once '../includes/functions.php';
 
-requireCliente();
+// Il profilo richiede login registrato (non guest)
+if (!isCliente()) {
+    if (isGuest()) {
+        redirectWithMessage('/login.php', 'Accedi per visualizzare il tuo profilo', 'warning');
+    } else {
+        header('Location: /login.php');
+        exit;
+    }
+}
+
 $pageTitle = 'Il Mio Profilo';
 
 $cliente = fetchOne($conn,
@@ -39,44 +48,51 @@ include '../includes/header_cliente.php';
 ?>
 
 <!-- Header profilo -->
-<div class="card border-0 shadow-sm mb-4">
-    <div class="card-body">
-        <div class="d-flex align-items-center gap-3 mb-4">
-            <!-- Avatar -->
-            <div class="rounded-circle bg-success bg-opacity-10 text-success d-flex align-items-center justify-content-center fw-bold fs-4"
-                 style="width:56px;height:56px;flex-shrink:0">
-                <?php echo strtoupper(substr($cliente['nome'], 0, 1)); ?>
-            </div>
-            <div>
-                <h5 class="mb-0 fw-semibold"><?php echo htmlspecialchars($cliente['nome']); ?></h5>
-                <?php if ($cliente['email']): ?>
-                    <div class="text-muted small">
-                        <i class="fas fa-envelope me-1"></i><?php echo htmlspecialchars($cliente['email']); ?>
-                    </div>
-                <?php endif; ?>
-                <?php if ($cliente['telefono']): ?>
-                    <div class="text-muted small">
-                        <i class="fas fa-phone me-1"></i><?php echo htmlspecialchars($cliente['telefono']); ?>
-                    </div>
-                <?php endif; ?>
+<div class="profile-header-card">
+    <div class="d-flex align-items-center gap-3 mb-4">
+        <div class="profile-avatar">
+            <?php echo strtoupper(substr($cliente['nome'], 0, 1)); ?>
+        </div>
+        <div>
+            <h5 class="mb-0 fw-bold"><?php echo htmlspecialchars($cliente['nome']); ?></h5>
+            <?php if ($cliente['nickname']): ?>
                 <div class="text-muted small">
-                    <i class="fas fa-calendar me-1"></i>Cliente dal <?php echo formatDate($cliente['dataRegistrazione']); ?>
+                    <i class="fas fa-at me-1"></i><?php echo htmlspecialchars($cliente['nickname']); ?>
+                </div>
+            <?php endif; ?>
+            <?php if ($cliente['email']): ?>
+                <div class="text-muted small">
+                    <i class="fas fa-envelope me-1"></i><?php echo htmlspecialchars($cliente['email']); ?>
+                </div>
+            <?php endif; ?>
+            <?php if ($cliente['telefono']): ?>
+                <div class="text-muted small">
+                    <i class="fas fa-phone me-1"></i><?php echo htmlspecialchars($cliente['telefono']); ?>
+                </div>
+            <?php endif; ?>
+            <div class="text-muted small">
+                <i class="fas fa-calendar-alt me-1"></i>Cliente dal <?php echo formatDate($cliente['dataRegistrazione']); ?>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="row g-3">
+        <div class="col-6 col-sm-4">
+            <div class="profile-stat-card">
+                <div class="profile-stat-value"><?php echo $stats['totaleOrdini']; ?></div>
+                <div class="profile-stat-label">
+                    <i class="fas fa-shopping-bag me-1"></i>Ordini totali
                 </div>
             </div>
         </div>
-
-        <!-- KPI quick -->
-        <div class="row g-3">
-            <div class="col-6 col-sm-4">
-                <div class="border rounded p-3 text-center">
-                    <div class="fs-4 fw-bold text-success"><?php echo $stats['totaleOrdini']; ?></div>
-                    <div class="text-muted small">Ordini totali</div>
+        <div class="col-6 col-sm-4">
+            <div class="profile-stat-card">
+                <div class="profile-stat-value" style="font-size:1.1rem">
+                    <?php echo formatPrice($stats['totaleSpeso']); ?>
                 </div>
-            </div>
-            <div class="col-6 col-sm-4">
-                <div class="border rounded p-3 text-center">
-                    <div class="fs-5 fw-bold text-success"><?php echo formatPrice($stats['totaleSpeso']); ?></div>
-                    <div class="text-muted small">Totale speso</div>
+                <div class="profile-stat-label">
+                    <i class="fas fa-euro-sign me-1"></i>Totale speso
                 </div>
             </div>
         </div>
@@ -84,12 +100,17 @@ include '../includes/header_cliente.php';
 </div>
 
 <!-- Storico ordini -->
-<h5 class="mb-3">I miei ordini</h5>
+<h5 class="mb-3 fw-bold">
+    <i class="fas fa-history me-2 text-success"></i>I miei ordini
+</h5>
 
 <?php if (empty($ordini)): ?>
-    <div class="text-center py-5 text-muted">
-        <i class="fas fa-box-open fa-3x mb-3"></i>
-        <p class="mb-3">Nessun ordine ancora</p>
+    <div class="empty-state">
+        <div class="empty-state-icon mx-auto">
+            <i class="fas fa-box-open fa-2x"></i>
+        </div>
+        <h3>Nessun ordine ancora</h3>
+        <p>Visita il catalogo e acquista i nostri prodotti freschi.</p>
         <a href="/cliente/catalogo.php" class="btn btn-success btn-sm">
             <i class="fas fa-store me-1"></i>Vai al catalogo
         </a>
@@ -97,21 +118,23 @@ include '../includes/header_cliente.php';
 <?php else: ?>
     <div class="d-flex flex-column gap-3">
         <?php foreach ($ordini as $ordine): ?>
-        <div class="card border-0 shadow-sm">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-start mb-3">
-                    <div>
-                        <div class="fw-semibold">Ordine #<?php echo $ordine['idVendita']; ?></div>
-                        <small class="text-muted">
-                            <i class="fas fa-calendar me-1"></i><?php echo formatDate($ordine['dataVendita'], true); ?>
-                            &nbsp;&nbsp;<i class="fas fa-map-marker-alt me-1"></i><?php echo htmlspecialchars($ordine['nomeLuogo']); ?>
-                        </small>
+        <div class="ordine-card">
+            <div class="ordine-card-header">
+                <div>
+                    <div class="fw-semibold">
+                        <i class="fas fa-hashtag me-1 text-muted" style="font-size:.8rem"></i>Ordine #<?php echo $ordine['idVendita']; ?>
                     </div>
-                    <span class="badge bg-success-subtle text-success border border-success-subtle">
-                        <i class="fas fa-check me-1"></i>Completato
-                    </span>
+                    <small class="text-muted">
+                        <i class="fas fa-calendar-alt me-1"></i><?php echo formatDate($ordine['dataVendita'], true); ?>
+                        &nbsp;&nbsp;
+                        <i class="fas fa-map-marker-alt me-1"></i><?php echo htmlspecialchars($ordine['nomeLuogo']); ?>
+                    </small>
                 </div>
-
+                <span class="badge-completato">
+                    <i class="fas fa-check me-1"></i>Completato
+                </span>
+            </div>
+            <div class="ordine-card-body">
                 <?php
                 $dettagli = fetchAll($conn,
                     "SELECT dv.*, p.nome as nomeProdotto
@@ -126,6 +149,7 @@ include '../includes/header_cliente.php';
                     <?php foreach ($dettagli as $det): ?>
                     <li class="d-flex justify-content-between py-1 border-bottom small">
                         <span>
+                            <i class="fas fa-seedling me-1 text-success" style="font-size:.7rem"></i>
                             <?php echo htmlspecialchars($det['nomeProdotto']); ?>
                             <?php if ($det['quantita']): ?>
                                 <span class="text-muted">&times; <?php echo $det['quantita']; ?></span>
@@ -134,7 +158,7 @@ include '../includes/header_cliente.php';
                                 <span class="text-muted">&mdash; <?php echo formatWeight($det['pesoVenduto'], 'kg'); ?></span>
                             <?php endif; ?>
                             <?php if ($det['omaggio']): ?>
-                                <span class="badge bg-success-subtle text-success border border-success-subtle ms-1" style="font-size:.65rem">Omaggio</span>
+                                <span class="badge-omaggio ms-1">Omaggio</span>
                             <?php endif; ?>
                         </span>
                         <span class="text-muted">
@@ -150,8 +174,9 @@ include '../includes/header_cliente.php';
                 </div>
                 <?php endif; ?>
 
-                <div class="d-flex justify-content-end">
-                    <span class="fw-bold text-success"><?php echo formatPrice($ordine['totalePagato']); ?></span>
+                <div class="d-flex justify-content-end align-items-center gap-2">
+                    <small class="text-muted">Totale IVA inclusa:</small>
+                    <span class="fw-bold text-success fs-6"><?php echo formatPrice($ordine['totalePagato']); ?></span>
                 </div>
             </div>
         </div>

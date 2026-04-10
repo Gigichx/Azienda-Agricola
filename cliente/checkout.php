@@ -1,22 +1,31 @@
 <?php
 /**
- * CHECKOUT.PHP - Cliente
+ * CHECKOUT.PHP - Cliente (solo utenti registrati)
  */
 
 require_once '../includes/db.php';
 require_once '../includes/auth.php';
 require_once '../includes/functions.php';
 
-requireCliente();
+// Il checkout è solo per clienti registrati
+if (!isCliente()) {
+    if (isGuest()) {
+        redirectWithMessage('/cliente/carrello.php', 'Devi effettuare il login per completare l\'ordine', 'warning');
+    } else {
+        header('Location: /login.php');
+        exit;
+    }
+}
+
 $pageTitle = 'Conferma Ordine';
 
 if (!isset($_SESSION['carrello']) || empty($_SESSION['carrello'])) {
     redirectWithMessage('/cliente/catalogo.php', 'Il carrello è vuoto', 'warning');
 }
 
-$carrello = $_SESSION['carrello'];
-$totale   = 0;
-$items    = [];
+$carrello   = $_SESSION['carrello'];
+$imponibile = 0;
+$items      = [];
 
 foreach ($carrello as $item) {
     $sql = "SELECT p.nome, conf.pesoNetto, conf.prezzo, conf.giacenzaAttuale, p.unitaMisura
@@ -30,17 +39,22 @@ foreach ($carrello as $item) {
             redirectWithMessage('/cliente/carrello.php',
                 'Giacenza insufficiente per ' . $det['nome'], 'error');
         }
-        $subtotale = $det['prezzo'] * $item['quantita'];
-        $totale   += $subtotale;
-        $items[]   = array_merge($item, [
-            'nome'       => $det['nome'],
-            'pesoNetto'  => $det['pesoNetto'],
-            'unitaMisura'=> $det['unitaMisura'],
-            'prezzo'     => $det['prezzo'],
-            'subtotale'  => $subtotale,
+        $subtotale   = $det['prezzo'] * $item['quantita'];
+        $imponibile += $subtotale;
+        $items[]     = array_merge($item, [
+            'nome'        => $det['nome'],
+            'pesoNetto'   => $det['pesoNetto'],
+            'unitaMisura' => $det['unitaMisura'],
+            'prezzo'      => $det['prezzo'],
+            'subtotale'   => $subtotale,
         ]);
     }
 }
+
+// IVA 22%
+$ivaPerc   = 22;
+$ivaAmt    = round($imponibile * $ivaPerc / 100, 2);
+$totaleCon = round($imponibile + $ivaAmt, 2);
 
 // Dati cliente
 $cliente = fetchOne($conn,
@@ -54,22 +68,23 @@ include '../includes/header_cliente.php';
 <div class="row justify-content-center">
     <div class="col-lg-8 col-xl-7">
 
-        <h2 class="h4 mb-4">Conferma ordine</h2>
+        <h2 class="h4 fw-bold mb-4">
+            <i class="fas fa-clipboard-check me-2 text-success"></i>Conferma ordine
+        </h2>
 
         <!-- Step 1 – Prodotti -->
-        <div class="card border-0 shadow-sm mb-4">
-            <div class="card-header bg-transparent border-0 pb-0">
-                <h6 class="fw-semibold mb-0">
-                    <span class="badge bg-success rounded-circle me-2">1</span>Prodotti nel carrello
-                </h6>
+        <div class="checkout-step-card">
+            <div class="checkout-step-header">
+                <span class="step-num">1</span>
+                <h6 class="fw-semibold mb-0">Prodotti nel carrello</h6>
             </div>
-            <div class="card-body">
+            <div class="checkout-step-body">
                 <?php foreach ($items as $item): ?>
                 <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
                     <div>
                         <div class="fw-semibold"><?php echo htmlspecialchars($item['nome']); ?></div>
                         <small class="text-muted">
-                            <?php echo formatWeight($item['pesoNetto'], $item['unitaMisura']); ?>/conf
+                            <i class="fas fa-weight-hanging me-1"></i><?php echo formatWeight($item['pesoNetto'], $item['unitaMisura']); ?>/conf
                             &times; <?php echo $item['quantita']; ?>
                         </small>
                     </div>
@@ -77,35 +92,46 @@ include '../includes/header_cliente.php';
                 </div>
                 <?php endforeach; ?>
 
+                <!-- Riepilogo importi -->
                 <div class="d-flex justify-content-between align-items-center pt-3">
-                    <span class="fw-semibold">Totale ordine</span>
-                    <span class="fw-bold fs-5 text-success"><?php echo formatPrice($totale); ?></span>
+                    <span class="text-muted">Imponibile</span>
+                    <span><?php echo formatPrice($imponibile); ?></span>
+                </div>
+                <div class="d-flex justify-content-between align-items-center pt-1">
+                    <span class="text-muted small">
+                        <i class="fas fa-percent me-1"></i>IVA <?php echo $ivaPerc; ?>%
+                    </span>
+                    <span class="small"><?php echo formatPrice($ivaAmt); ?></span>
+                </div>
+                <hr class="my-2">
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="fw-bold fs-6">Totale IVA inclusa</span>
+                    <span class="fw-bold fs-5 text-success"><?php echo formatPrice($totaleCon); ?></span>
                 </div>
             </div>
         </div>
 
         <!-- Step 2 – Dati cliente -->
-        <div class="card border-0 shadow-sm mb-4">
-            <div class="card-header bg-transparent border-0 pb-0">
-                <h6 class="fw-semibold mb-0">
-                    <span class="badge bg-success rounded-circle me-2">2</span>I tuoi dati
-                </h6>
+        <div class="checkout-step-card">
+            <div class="checkout-step-header">
+                <span class="step-num">2</span>
+                <h6 class="fw-semibold mb-0">I tuoi dati</h6>
             </div>
-            <div class="card-body">
-                <div class="row g-2">
+            <div class="checkout-step-body">
+                <div class="row g-3">
                     <div class="col-sm-6">
-                        <div class="small text-muted">Nome</div>
+                        <div class="small text-muted"><i class="fas fa-user me-1"></i>Nome</div>
                         <div class="fw-semibold"><?php echo htmlspecialchars($cliente['nome']); ?></div>
                     </div>
                     <?php if ($cliente['email']): ?>
                     <div class="col-sm-6">
-                        <div class="small text-muted">Email</div>
+                        <div class="small text-muted"><i class="fas fa-envelope me-1"></i>Email</div>
                         <div><?php echo htmlspecialchars($cliente['email']); ?></div>
                     </div>
                     <?php endif; ?>
                     <?php if ($cliente['telefono']): ?>
                     <div class="col-sm-6">
-                        <div class="small text-muted">Telefono</div>
+                        <div class="small text-muted"><i class="fas fa-phone me-1"></i>Telefono</div>
                         <div><?php echo htmlspecialchars($cliente['telefono']); ?></div>
                     </div>
                     <?php endif; ?>
@@ -114,29 +140,32 @@ include '../includes/header_cliente.php';
         </div>
 
         <!-- Step 3 – Note e conferma -->
-        <div class="card border-0 shadow-sm mb-4">
-            <div class="card-header bg-transparent border-0 pb-0">
-                <h6 class="fw-semibold mb-0">
-                    <span class="badge bg-success rounded-circle me-2">3</span>Note e conferma
-                </h6>
+        <div class="checkout-step-card">
+            <div class="checkout-step-header">
+                <span class="step-num">3</span>
+                <h6 class="fw-semibold mb-0">Note e conferma</h6>
             </div>
             <form method="POST" action="/api/ordini.php" id="checkoutForm">
-                <div class="card-body">
+                <div class="checkout-step-body">
                     <input type="hidden" name="action" value="create">
 
                     <div class="mb-3">
-                        <label for="note" class="form-label small">Note o richieste particolari (opzionale)</label>
+                        <label for="note" class="form-label small fw-semibold">
+                            <i class="fas fa-sticky-note me-1 text-muted"></i>Note o richieste particolari (opzionale)
+                        </label>
                         <textarea name="note" id="note" class="form-control" rows="2"
                                   placeholder="Es: preferisco la consegna al mattino..."></textarea>
                     </div>
 
-                    <div class="alert alert-light border mb-0 py-2">
+                    <div class="alert alert-light border d-flex gap-2 align-items-start mb-0 py-2">
+                        <i class="fas fa-info-circle text-success mt-1"></i>
                         <small class="text-muted">
-                            <i class="fas fa-info-circle me-1 text-success"></i>
-                            Confermando accetti l'ordine per un totale di
-                            <strong><?php echo formatPrice($totale); ?></strong>.
-                            Riceverai una conferma via email a
-                            <strong><?php echo htmlspecialchars($cliente['email'] ?? '—'); ?></strong>.
+                            Confermando l'ordine accetti l'acquisto per un totale di
+                            <strong><?php echo formatPrice($totaleCon); ?></strong>
+                            (IVA <?php echo $ivaPerc; ?>% inclusa).
+                            <?php if ($cliente['email']): ?>
+                            Riceverai conferma a <strong><?php echo htmlspecialchars($cliente['email']); ?></strong>.
+                            <?php endif; ?>
                         </small>
                     </div>
                 </div>

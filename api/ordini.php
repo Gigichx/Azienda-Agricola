@@ -8,7 +8,15 @@ require_once '../includes/db.php';
 require_once '../includes/auth.php';
 require_once '../includes/functions.php';
 
-requireCliente();
+// Solo clienti registrati possono creare ordini (non guest)
+if (!isCliente()) {
+    if (isGuest()) {
+        redirectWithMessage('/cliente/carrello.php', 'Devi effettuare il login per completare l\'ordine', 'warning');
+    } else {
+        header('Location: /login.php');
+        exit;
+    }
+}
 
 $action = $_POST['action'] ?? '';
 
@@ -22,12 +30,15 @@ if ($action === 'create') {
     $note    = sanitizeInput($_POST['note'] ?? '');
     $carrello = $_SESSION['carrello'];
 
+    // IVA
+    $ivaPerc = 22;
+
     // Inizia transazione
     mysqli_begin_transaction($conn);
 
     try {
         // Ottieni ID cliente
-        $sqlCliente = "SELECT idCliente FROM CLIENTE WHERE idUtente = ?";
+        $sqlCliente  = "SELECT idCliente FROM CLIENTE WHERE idUtente = ?";
         $clienteData = fetchOne($conn, $sqlCliente, [getUserId()]);
 
         if (!$clienteData) {
@@ -36,8 +47,8 @@ if ($action === 'create') {
 
         $idCliente = $clienteData['idCliente'];
 
-        // Calcola totale e verifica giacenze
-        $totale        = 0;
+        // Calcola imponibile e verifica giacenze
+        $imponibile     = 0;
         $dettagliOrdine = [];
 
         foreach ($carrello as $item) {
@@ -57,8 +68,8 @@ if ($action === 'create') {
                 throw new Exception('Giacenza insufficiente per uno o più prodotti');
             }
 
-            $subtotale = $confData['prezzo'] * $item['quantita'];
-            $totale   += $subtotale;
+            $subtotale   = $confData['prezzo'] * $item['quantita'];
+            $imponibile += $subtotale;
 
             $dettagliOrdine[] = [
                 'idProdotto'        => $confData['idProdotto'],
@@ -68,21 +79,23 @@ if ($action === 'create') {
             ];
         }
 
+        // Totale con IVA 22%
+        $ivaAmt    = round($imponibile * $ivaPerc / 100, 2);
+        $totaleCon = round($imponibile + $ivaAmt, 2);
+
         // Trova luogo "punto vendita"
         $luogoData = fetchOne($conn, "SELECT idLuogo FROM LUOGO WHERE tipo = 'punto vendita' LIMIT 1");
-
         if (!$luogoData) {
             $luogoData = fetchOne($conn, "SELECT idLuogo FROM LUOGO LIMIT 1");
         }
-
         $idLuogo = $luogoData['idLuogo'];
 
-        // Crea vendita
+        // Crea vendita — salviamo totale IVA inclusa in totalePagato
         $sqlVendita = "INSERT INTO VENDITA (dataVendita, totaleCalcolato, totalePagato, note, idCliente, idLuogo)
                        VALUES (NOW(), ?, ?, ?, ?, ?)";
 
         $idVendita = insertAndGetId($conn, $sqlVendita, [
-            $totale, $totale, $note, $idCliente, $idLuogo
+            $imponibile, $totaleCon, $note, $idCliente, $idLuogo
         ]);
 
         // Inserisci dettagli e scala giacenze
@@ -108,10 +121,8 @@ if ($action === 'create') {
         // Commit
         mysqli_commit($conn);
 
-        // Svuota carrello
-        $_SESSION['carrello'] = [];
-
-        // Redirect a conferma
+        // Svuota carrello e redirect
+        $_SESSION['carrello']          = [];
         $_SESSION['ordine_confermato'] = $idVendita;
         header('Location: /cliente/ordine-confermato.php');
         exit;

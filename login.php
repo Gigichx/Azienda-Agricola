@@ -11,7 +11,7 @@ if (isLoggedIn()) {
     redirectByRole();
 }
 
-$error = '';
+$error      = '';
 $timeoutMsg = '';
 
 if (isset($_GET['timeout']) && $_GET['timeout'] == '1') {
@@ -19,11 +19,14 @@ if (isset($_GET['timeout']) && $_GET['timeout'] == '1') {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $email    = sanitizeInput($_POST['email'] ?? '');
+    // NON usare sanitizeInput sull'email prima della query: htmlspecialchars corrompe la ricerca
+    $email    = trim($_POST['email'] ?? '');
     $password = $_POST['password'] ?? '';
 
     if (empty($email) || empty($password)) {
         $error = 'Inserisci email e password.';
+    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $error = 'Indirizzo email non valido.';
     } else {
         try {
             $sql  = "SELECT u.*, c.idCliente
@@ -32,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                      WHERE u.email = ? AND u.attivo = TRUE";
             $user = fetchOne($conn, $sql, [$email]);
 
-            if ($user && verifyPassword($password, $user['password'])) {
+            if ($user && password_verify($password, $user['password'])) {
                 login($user);
                 redirectByRole();
             } else {
@@ -93,13 +96,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
                     <div class="mb-4">
                         <label for="password" class="form-label small fw-semibold">Password</label>
-                        <input type="password" id="password" name="password" class="form-control"
-                               placeholder="••••••••" required autocomplete="current-password">
+                        <div class="input-group">
+                            <input type="password" id="password" name="password" class="form-control"
+                                   placeholder="••••••••" required autocomplete="current-password">
+                            <button class="btn btn-outline-secondary" type="button" id="togglePwd" tabindex="-1">
+                                <i class="fas fa-eye" id="togglePwdIcon"></i>
+                            </button>
+                        </div>
                     </div>
                     <button type="submit" class="btn btn-success w-100">
                         <i class="fas fa-sign-in-alt me-1"></i>Accedi
                     </button>
                 </form>
+
+                <!-- Accesso Ospite / Cliente Occasionale -->
+                <div class="text-center mt-3">
+                    <span class="text-muted small">oppure</span>
+                </div>
+                <a href="/cliente/catalogo.php?guest=1" class="btn btn-outline-secondary w-100 mt-2 btn-sm">
+                    <i class="fas fa-user-clock me-1"></i>Continua come Cliente Occasionale
+                </a>
 
             </div>
             <div class="card-footer bg-transparent text-center py-3">
@@ -113,5 +129,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+// Mostra/nascondi password
+document.getElementById('togglePwd')?.addEventListener('click', function () {
+    const pwd  = document.getElementById('password');
+    const icon = document.getElementById('togglePwdIcon');
+    if (pwd.type === 'password') {
+        pwd.type = 'text';
+        icon.classList.replace('fa-eye', 'fa-eye-slash');
+    } else {
+        pwd.type = 'password';
+        icon.classList.replace('fa-eye-slash', 'fa-eye');
+    }
+});
+</script>
 </body>
 </html>

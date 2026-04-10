@@ -696,3 +696,20 @@ input[name="quantita"] {
     animation: spin .7s linear infinite;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
+
+/* ============================================
+   ADMIN FOOTER
+   ============================================ */
+.admin-footer {
+    background: #fff;
+    border-top: 1px solid #e2e8f0;
+    padding: .6rem 1.5rem;
+    margin-top: auto;
+}
+.admin-footer .footer-inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: .78rem;
+    color: #6b7280;
+}

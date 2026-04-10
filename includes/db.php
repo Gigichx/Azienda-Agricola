@@ -22,29 +22,38 @@ mysqli_set_charset($conn, 'utf8mb4');
 
 /**
  * Esegue una query con prepared statement
- * Restituisce il risultato (mysqli_result o true)
+ * Restituisce lo statement (mysqli_stmt)
  */
 function executeQuery($conn, $sql, $params = []) {
     $stmt = mysqli_prepare($conn, $sql);
-    
+
     if (!$stmt) {
-        error_log("Errore prepare: " . mysqli_error($conn));
-        throw new Exception("Errore nella query");
+        error_log("Errore prepare: " . mysqli_error($conn) . " | SQL: " . $sql);
+        throw new Exception("Errore nella preparazione della query");
     }
-    
+
     // Bind parametri se presenti
     if (!empty($params)) {
-        // Determina i tipi automaticamente
         $types = '';
         foreach ($params as $param) {
-            if (is_int($param))    $types .= 'i';
-            elseif (is_float($param)) $types .= 'd';
-            else                   $types .= 's';
+            if (is_int($param))        $types .= 'i';
+            elseif (is_float($param))  $types .= 'd';
+            elseif (is_null($param))   $types .= 's';
+            else                       $types .= 's';
         }
-        mysqli_stmt_bind_param($stmt, $types, ...$params);
+        // Converti null in stringa vuota solo per il bind, ma usa IS NULL in query
+        $bindParams = [];
+        foreach ($params as $p) {
+            $bindParams[] = is_null($p) ? null : $p;
+        }
+        mysqli_stmt_bind_param($stmt, $types, ...$bindParams);
     }
-    
-    mysqli_stmt_execute($stmt);
+
+    if (!mysqli_stmt_execute($stmt)) {
+        error_log("Errore execute: " . mysqli_stmt_error($stmt));
+        throw new Exception("Errore nell'esecuzione della query");
+    }
+
     return $stmt;
 }
 
@@ -53,9 +62,9 @@ function executeQuery($conn, $sql, $params = []) {
  * Ritorna un singolo record come array associativo
  */
 function fetchOne($conn, $sql, $params = []) {
-    $stmt  = executeQuery($conn, $sql, $params);
+    $stmt   = executeQuery($conn, $sql, $params);
     $result = mysqli_stmt_get_result($stmt);
-    $row   = mysqli_fetch_assoc($result);
+    $row    = mysqli_fetch_assoc($result);
     mysqli_stmt_close($stmt);
     return $row; // null se non trovato
 }
