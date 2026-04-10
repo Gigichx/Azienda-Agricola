@@ -1,6 +1,7 @@
 <?php
 /**
  * DASHBOARD ADMIN
+ * Azienda Agricola
  */
 
 require_once '../includes/db.php';
@@ -8,260 +9,211 @@ require_once '../includes/auth.php';
 require_once '../includes/functions.php';
 
 requireAdmin();
+
 $pageTitle = 'Dashboard';
 
-// KPI
-$venditeOggi = fetchOne($pdo,
-    "SELECT COUNT(*) as totale, COALESCE(SUM(totalePagato),0) as importo
-     FROM VENDITA WHERE DATE(dataVendita) = CURDATE()"
-);
+// KPI: Vendite oggi
+$sqlVenditeOggi = "SELECT COUNT(*) as totale, SUM(totalePagato) as importo
+                   FROM VENDITA
+                   WHERE DATE(dataVendita) = CURDATE()";
+$venditeOggi = fetchOne($conn, $sqlVenditeOggi);
 
-$prodottiEsauriti = getProdottiEsauriti($pdo);
+// KPI: Prodotti esauriti
+$prodottiEsauriti = getProdottiEsauriti($conn);
 $totaleEsauriti   = count($prodottiEsauriti);
 
-$giacenzeData  = fetchOne($pdo, "SELECT COALESCE(SUM(giacenzaAttuale),0) as totale FROM CONFEZIONAMENTO");
-$totaleGiacenze = (int)$giacenzeData['totale'];
+// KPI: Totale confezioni in giacenza
+$sqlGiacenze  = "SELECT SUM(giacenzaAttuale) as totale FROM CONFEZIONAMENTO";
+$giacenzeData = fetchOne($conn, $sqlGiacenze);
+$totaleGiacenze = $giacenzeData['totale'] ?? 0;
 
-$riserveData   = fetchOne($pdo, "SELECT COUNT(*) as totale FROM RISERVA WHERE quantitaAttuale > 0");
-$totaleRiserve = (int)$riserveData['totale'];
+// KPI: Riserve attive
+$sqlRiserve  = "SELECT COUNT(*) as totale FROM RISERVA WHERE quantitaAttuale > 0";
+$riserveData = fetchOne($conn, $sqlRiserve);
+$totaleRiserve = $riserveData['totale'];
 
 // Ultime vendite
-$ultimeVendite = fetchAll($pdo,
-    "SELECT v.*, c.nome as nomeCliente, l.nome as nomeLuogo
-     FROM VENDITA v
-     INNER JOIN CLIENTE c ON v.idCliente = c.idCliente
-     INNER JOIN LUOGO l ON v.idLuogo = l.idLuogo
-     ORDER BY v.dataVendita DESC LIMIT 6"
-);
+$sqlUltimeVendite = "SELECT v.*, c.nome as nomeCliente, l.nome as nomeLuogo
+                     FROM VENDITA v
+                     INNER JOIN CLIENTE c ON v.idCliente = c.idCliente
+                     INNER JOIN LUOGO l ON v.idLuogo = l.idLuogo
+                     ORDER BY v.dataVendita DESC
+                     LIMIT 5";
+$ultimeVendite = fetchAll($conn, $sqlUltimeVendite);
 
 // Ultime lavorazioni
-$ultimeLavorazioni = fetchAll($pdo,
-    "SELECT l.*, p.nome as nomeProdotto, lu.nome as nomeLuogo
-     FROM LAVORAZIONE l
-     INNER JOIN PRODOTTO p ON l.idProdotto = p.idProdotto
-     INNER JOIN LUOGO lu ON l.idLuogo = lu.idLuogo
-     ORDER BY l.dataLavorazione DESC LIMIT 6"
-);
+$sqlUltimeLavorazioni = "SELECT l.*, p.nome as nomeProdotto, lu.nome as nomeLuogo
+                         FROM LAVORAZIONE l
+                         INNER JOIN PRODOTTO p ON l.idProdotto = p.idProdotto
+                         INNER JOIN LUOGO lu ON l.idLuogo = lu.idLuogo
+                         ORDER BY l.dataLavorazione DESC
+                         LIMIT 5";
+$ultimeLavorazioni = fetchAll($conn, $sqlUltimeLavorazioni);
 
 // Giacenze per categoria
-$giacenzeCategoria = fetchAll($pdo,
-    "SELECT c.nome, COALESCE(SUM(conf.giacenzaAttuale), 0) as totale
-     FROM CATEGORIA c
-     LEFT JOIN PRODOTTO p ON c.idCategoria = p.idCategoria
-     LEFT JOIN CONFEZIONAMENTO conf ON p.idProdotto = conf.idProdotto
-     GROUP BY c.idCategoria
-     ORDER BY totale DESC"
-);
+$sqlGiacenzeCategoria = "SELECT c.nome,
+                         COALESCE(SUM(conf.giacenzaAttuale), 0) as totale
+                         FROM CATEGORIA c
+                         LEFT JOIN PRODOTTO p ON c.idCategoria = p.idCategoria
+                         LEFT JOIN CONFEZIONAMENTO conf ON p.idProdotto = conf.idProdotto
+                         GROUP BY c.idCategoria
+                         ORDER BY totale DESC";
+$giacenzeCategoria = fetchAll($conn, $sqlGiacenzeCategoria);
 
 include '../includes/header_admin.php';
 ?>
 
 <!-- KPI Cards -->
-<div class="row g-3 mb-4">
-    <div class="col-6 col-lg-3">
-        <div class="card border-0 shadow-sm">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-start">
-                    <div>
-                        <p class="text-muted small mb-1">Vendite oggi</p>
-                        <h3 class="mb-0 fw-bold"><?php echo (int)$venditeOggi['totale']; ?></h3>
-                        <small class="text-muted"><?php echo formatPrice($venditeOggi['importo']); ?></small>
-                    </div>
-                    <div class="bg-success bg-opacity-10 text-success rounded p-2">
-                        <i class="fas fa-cash-register"></i>
-                    </div>
-                </div>
-            </div>
+<div class="dashboard-kpis">
+    <div class="kpi-card">
+        <div class="kpi-header">
+            <h3 class="kpi-title">Vendite Oggi</h3>
+            <div class="kpi-icon">💰</div>
+        </div>
+        <p class="kpi-value"><?php echo $venditeOggi['totale']; ?></p>
+        <div class="kpi-footer">
+            <span>Totale: <?php echo formatPrice($venditeOggi['importo'] ?? 0); ?></span>
         </div>
     </div>
 
-    <div class="col-6 col-lg-3">
-        <div class="card border-0 shadow-sm">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-start">
-                    <div>
-                        <p class="text-muted small mb-1">Prodotti esauriti</p>
-                        <h3 class="mb-0 fw-bold <?php echo $totaleEsauriti > 0 ? 'text-danger' : 'text-success'; ?>">
-                            <?php echo $totaleEsauriti; ?>
-                        </h3>
-                        <small class="text-muted"><?php echo $totaleEsauriti > 0 ? 'Da riordinare' : 'Tutto ok'; ?></small>
-                    </div>
-                    <div class="bg-<?php echo $totaleEsauriti > 0 ? 'danger' : 'success'; ?> bg-opacity-10
-                                  text-<?php echo $totaleEsauriti > 0 ? 'danger' : 'success'; ?> rounded p-2">
-                        <i class="fas fa-<?php echo $totaleEsauriti > 0 ? 'exclamation-triangle' : 'check-circle'; ?>"></i>
-                    </div>
-                </div>
-            </div>
+    <div class="kpi-card">
+        <div class="kpi-header">
+            <h3 class="kpi-title">Prodotti Esauriti</h3>
+            <div class="kpi-icon">⚠️</div>
+        </div>
+        <p class="kpi-value" style="color: <?php echo $totaleEsauriti > 0 ? 'var(--color-error)' : 'var(--color-success)'; ?>;">
+            <?php echo $totaleEsauriti; ?>
+        </p>
+        <div class="kpi-footer">
+            <span><?php echo $totaleEsauriti > 0 ? 'Necessita riordino' : 'Tutto ok'; ?></span>
         </div>
     </div>
 
-    <div class="col-6 col-lg-3">
-        <div class="card border-0 shadow-sm">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-start">
-                    <div>
-                        <p class="text-muted small mb-1">Confezioni in giacenza</p>
-                        <h3 class="mb-0 fw-bold"><?php echo $totaleGiacenze; ?></h3>
-                        <small class="text-muted">Disponibili per la vendita</small>
-                    </div>
-                    <div class="bg-primary bg-opacity-10 text-primary rounded p-2">
-                        <i class="fas fa-boxes-stacked"></i>
-                    </div>
-                </div>
-            </div>
+    <div class="kpi-card">
+        <div class="kpi-header">
+            <h3 class="kpi-title">Giacenze Totali</h3>
+            <div class="kpi-icon">📦</div>
+        </div>
+        <p class="kpi-value"><?php echo $totaleGiacenze; ?></p>
+        <div class="kpi-footer">
+            <span>Confezioni disponibili</span>
         </div>
     </div>
 
-    <div class="col-6 col-lg-3">
-        <div class="card border-0 shadow-sm">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-start">
-                    <div>
-                        <p class="text-muted small mb-1">Riserve attive</p>
-                        <h3 class="mb-0 fw-bold"><?php echo $totaleRiserve; ?></h3>
-                        <small class="text-muted">In dispensa</small>
-                    </div>
-                    <div class="bg-warning bg-opacity-10 text-warning rounded p-2">
-                        <i class="fas fa-box"></i>
-                    </div>
-                </div>
-            </div>
+    <div class="kpi-card">
+        <div class="kpi-header">
+            <h3 class="kpi-title">Riserve Attive</h3>
+            <div class="kpi-icon">🏺</div>
+        </div>
+        <p class="kpi-value"><?php echo $totaleRiserve; ?></p>
+        <div class="kpi-footer">
+            <span>In dispensa</span>
         </div>
     </div>
 </div>
 
-<!-- Content row -->
-<div class="row g-4">
+<!-- Content -->
+<div class="dashboard-content">
+    <div class="dashboard-main">
 
-    <!-- Colonna principale -->
-    <div class="col-lg-8">
-
-        <!-- Ultime vendite -->
-        <div class="card border-0 shadow-sm mb-4">
-            <div class="card-header bg-transparent border-0 d-flex justify-content-between align-items-center">
-                <h6 class="mb-0 fw-semibold">Ultime vendite</h6>
-                <a href="/admin/vendite.php" class="btn btn-sm btn-link text-success text-decoration-none">
-                    Tutte <i class="fas fa-arrow-right ms-1"></i>
-                </a>
+        <!-- Ultime Vendite -->
+        <div class="attivita-recenti">
+            <div class="attivita-header">
+                <h3 class="attivita-title">Ultime Vendite</h3>
             </div>
-            <div class="card-body p-0">
-                <?php if (empty($ultimeVendite)): ?>
-                    <p class="text-center text-muted py-4 mb-0">Nessuna vendita</p>
-                <?php else: ?>
-                <ul class="list-group list-group-flush">
+            <?php if (empty($ultimeVendite)): ?>
+                <p class="empty-state">Nessuna vendita recente</p>
+            <?php else: ?>
+                <ul class="attivita-list">
                     <?php foreach ($ultimeVendite as $v): ?>
-                    <li class="list-group-item d-flex justify-content-between align-items-center px-4 py-3">
-                        <div class="d-flex align-items-center gap-3">
-                            <div class="bg-success bg-opacity-10 text-success rounded-circle d-flex align-items-center justify-content-center"
-                                 style="width:34px;height:34px;flex-shrink:0">
-                                <i class="fas fa-shopping-cart" style="font-size:.75rem"></i>
+                        <li class="attivita-item">
+                            <div class="attivita-icon vendita">💰</div>
+                            <div class="attivita-content">
+                                <p class="attivita-descrizione">
+                                    <strong><?php echo htmlspecialchars($v['nomeCliente']); ?></strong> -
+                                    <?php echo htmlspecialchars($v['nomeLuogo']); ?>
+                                </p>
+                                <p class="attivita-data"><?php echo formatDate($v['dataVendita'], true); ?></p>
                             </div>
-                            <div>
-                                <div class="fw-semibold small"><?php echo htmlspecialchars($v['nomeCliente']); ?></div>
-                                <div class="text-muted" style="font-size:.75rem">
-                                    <?php echo formatDate($v['dataVendita'], true); ?> — <?php echo htmlspecialchars($v['nomeLuogo']); ?>
-                                </div>
-                            </div>
-                        </div>
-                        <strong class="text-success"><?php echo formatPrice($v['totalePagato']); ?></strong>
-                    </li>
+                            <div class="attivita-valore"><?php echo formatPrice($v['totalePagato']); ?></div>
+                        </li>
                     <?php endforeach; ?>
                 </ul>
-                <?php endif; ?>
-            </div>
+                <div class="attivita-footer">
+                    <a href="/admin/vendite.php">Vedi tutte le vendite →</a>
+                </div>
+            <?php endif; ?>
         </div>
 
-        <!-- Ultime lavorazioni -->
-        <div class="card border-0 shadow-sm">
-            <div class="card-header bg-transparent border-0 d-flex justify-content-between align-items-center">
-                <h6 class="mb-0 fw-semibold">Ultime lavorazioni</h6>
-                <a href="/admin/lavorazione.php" class="btn btn-sm btn-link text-success text-decoration-none">
-                    Tutte <i class="fas fa-arrow-right ms-1"></i>
-                </a>
+        <!-- Ultime Lavorazioni -->
+        <div class="attivita-recenti">
+            <div class="attivita-header">
+                <h3 class="attivita-title">Ultime Lavorazioni</h3>
             </div>
-            <div class="card-body p-0">
-                <?php if (empty($ultimeLavorazioni)): ?>
-                    <p class="text-center text-muted py-4 mb-0">Nessuna lavorazione</p>
-                <?php else: ?>
-                <ul class="list-group list-group-flush">
+            <?php if (empty($ultimeLavorazioni)): ?>
+                <p class="empty-state">Nessuna lavorazione recente</p>
+            <?php else: ?>
+                <ul class="attivita-list">
                     <?php foreach ($ultimeLavorazioni as $l): ?>
-                    <li class="list-group-item d-flex justify-content-between align-items-center px-4 py-3">
-                        <div class="d-flex align-items-center gap-3">
-                            <div class="bg-secondary bg-opacity-10 text-secondary rounded-circle d-flex align-items-center justify-content-center"
-                                 style="width:34px;height:34px;flex-shrink:0">
-                                <i class="fas fa-cogs" style="font-size:.75rem"></i>
+                        <li class="attivita-item">
+                            <div class="attivita-icon lavorazione">🔧</div>
+                            <div class="attivita-content">
+                                <p class="attivita-descrizione">
+                                    <strong><?php echo htmlspecialchars($l['nomeProdotto']); ?></strong> -
+                                    <?php echo htmlspecialchars($l['tipoLavorazione']); ?>
+                                </p>
+                                <p class="attivita-data">
+                                    <?php echo formatDate($l['dataLavorazione']); ?> -
+                                    <?php echo htmlspecialchars($l['nomeLuogo']); ?>
+                                </p>
                             </div>
-                            <div>
-                                <div class="fw-semibold small"><?php echo htmlspecialchars($l['nomeProdotto']); ?></div>
-                                <div class="text-muted" style="font-size:.75rem">
-                                    <?php echo htmlspecialchars($l['tipoLavorazione']); ?> — <?php echo formatDate($l['dataLavorazione']); ?>
-                                </div>
-                            </div>
-                        </div>
-                        <span class="text-muted small"><?php echo formatWeight($l['quantitaOttenuta'], 'kg'); ?></span>
-                    </li>
+                            <div class="attivita-valore"><?php echo formatWeight($l['quantitaOttenuta'], 'kg'); ?></div>
+                        </li>
                     <?php endforeach; ?>
                 </ul>
-                <?php endif; ?>
-            </div>
+                <div class="attivita-footer">
+                    <a href="/admin/lavorazione.php">Vedi tutte le lavorazioni →</a>
+                </div>
+            <?php endif; ?>
         </div>
     </div>
 
     <!-- Sidebar -->
-    <div class="col-lg-4">
+    <div class="dashboard-sidebar">
 
-        <!-- Avvisi esauriti -->
-        <?php if (!empty($prodottiEsauriti)): ?>
-        <div class="card border-0 shadow-sm border-start border-danger border-3 mb-4">
-            <div class="card-header bg-transparent border-0">
-                <h6 class="mb-0 fw-semibold text-danger">
-                    <i class="fas fa-exclamation-triangle me-2"></i>Prodotti esauriti
-                </h6>
-            </div>
-            <div class="card-body p-0">
-                <ul class="list-group list-group-flush">
-                    <?php foreach ($prodottiEsauriti as $pe): ?>
-                    <li class="list-group-item py-2 px-3">
-                        <div class="fw-semibold small"><?php echo htmlspecialchars($pe['nome']); ?></div>
-                        <small class="text-muted"><?php echo htmlspecialchars($pe['categoria']); ?></small>
-                    </li>
-                    <?php endforeach; ?>
-                </ul>
-            </div>
-        </div>
-        <?php else: ?>
-        <div class="card border-0 shadow-sm border-start border-success border-3 mb-4">
-            <div class="card-body py-3">
-                <div class="text-success small fw-semibold">
-                    <i class="fas fa-check-circle me-2"></i>Nessun prodotto esaurito
-                </div>
-            </div>
-        </div>
-        <?php endif; ?>
-
-        <!-- Giacenze per categoria -->
-        <div class="card border-0 shadow-sm">
-            <div class="card-header bg-transparent border-0">
-                <h6 class="mb-0 fw-semibold">Giacenze per categoria</h6>
-            </div>
-            <div class="card-body">
-                <?php foreach ($giacenzeCategoria as $gc): ?>
-                <div class="mb-3">
-                    <div class="d-flex justify-content-between mb-1">
-                        <small class="fw-semibold"><?php echo htmlspecialchars($gc['nome']); ?></small>
-                        <small class="text-muted"><?php echo (int)$gc['totale']; ?></small>
-                    </div>
-                    <div class="progress" style="height:6px">
-                        <div class="progress-bar bg-success"
-                             style="width:<?php echo $totaleGiacenze > 0 ? min(100, ($gc['totale'] / $totaleGiacenze) * 100) : 0; ?>%">
+        <!-- Avvisi Urgenti -->
+        <div class="avvisi-urgenti">
+            <h3 class="avvisi-title">⚠️ Avvisi</h3>
+            <?php if (empty($prodottiEsauriti)): ?>
+                <p class="avviso-empty">Nessun avviso</p>
+            <?php else: ?>
+                <?php foreach ($prodottiEsauriti as $pe): ?>
+                    <div class="avviso-item critico">
+                        <div class="avviso-icon">⚠️</div>
+                        <div class="avviso-content">
+                            <p class="avviso-prodotto"><?php echo htmlspecialchars($pe['nome']); ?></p>
+                            <small>Categoria: <?php echo htmlspecialchars($pe['categoria']); ?></small><br>
+                            <small style="color: var(--color-error);">ESAURITO</small>
                         </div>
                     </div>
-                </div>
                 <?php endforeach; ?>
-                <?php if (empty($giacenzeCategoria)): ?>
-                    <p class="text-muted small mb-0">Nessuna giacenza registrata</p>
-                <?php endif; ?>
-            </div>
+            <?php endif; ?>
+        </div>
+
+        <!-- Giacenze per Categoria -->
+        <div class="giacenze-categoria">
+            <h3 class="giacenze-title">Giacenze per Categoria</h3>
+            <?php foreach ($giacenzeCategoria as $gc): ?>
+                <div class="giacenza-item">
+                    <div>
+                        <p class="giacenza-nome"><?php echo htmlspecialchars($gc['nome']); ?></p>
+                        <div class="giacenza-barra">
+                            <div class="giacenza-progress" style="width: <?php echo min(100, ($gc['totale'] / max($totaleGiacenze, 1)) * 100); ?>%;"></div>
+                        </div>
+                    </div>
+                    <span class="giacenza-valore"><?php echo $gc['totale']; ?></span>
+                </div>
+            <?php endforeach; ?>
         </div>
 
     </div>
