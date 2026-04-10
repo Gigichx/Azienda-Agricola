@@ -25,11 +25,13 @@ $sqlRegistrati = "SELECT c.*, u.email as emailUtente, u.dataRegistrazione,
 $clienti = fetchAll($conn, $sqlRegistrati);
 
 // Cliente occasionale
-$clienteOccasionale = fetchOne($conn, "SELECT c.*, COALESCE(COUNT(v.idVendita),0) as totaleOrdini,
+$clienteOccasionale = fetchOne($conn, "SELECT c.*, COUNT(v.idVendita) as totaleOrdini,
         COALESCE(SUM(v.totalePagato),0) as totaleSpeso
         FROM CLIENTE c
         LEFT JOIN VENDITA v ON c.idCliente = v.idCliente
-        WHERE c.occasionale = TRUE LIMIT 1");
+        WHERE c.occasionale = TRUE
+        GROUP BY c.idCliente
+        LIMIT 1");
 
 include '../includes/header_admin.php';
 ?>
