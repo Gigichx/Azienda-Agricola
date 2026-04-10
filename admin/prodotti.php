@@ -142,7 +142,10 @@ include '../includes/header_admin.php';
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label required">Prezzo Base</label>
+                    <label class="form-label required">
+                        Prezzo Base
+                        <span id="prezzoPer" class="text-muted" style="font-weight:400; font-size:.78rem"></span>
+                    </label>
                     <div class="input-group">
                         <input type="number" name="prezzoBase" id="formPrezzo" class="form-input"
                                step="0.01" min="0" required>
@@ -170,6 +173,21 @@ function closeModal(id) {
     }
 }
 
+// Label prezzo dinamica in base all'unità selezionata
+const unitaLabels = {
+    'kg':     '— prezzo per kg',
+    'litro':  '— prezzo per litro',
+    'pezzo':  '— prezzo al pezzo',
+    'grammo': '— prezzo per grammo'
+};
+function aggiornaLabelPrezzo(val) {
+    const el = document.getElementById('prezzoPer');
+    if (el) el.textContent = unitaLabels[val] || '';
+}
+document.getElementById('formUnita')?.addEventListener('change', function() {
+    aggiornaLabelPrezzo(this.value);
+});
+
 function editProdotto(prodotto) {
     document.getElementById('formAction').value    = 'update';
     document.getElementById('formIdProdotto').value = prodotto.idProdotto;
@@ -178,6 +196,7 @@ function editProdotto(prodotto) {
     document.getElementById('formUnita').value      = prodotto.unitaMisura;
     document.getElementById('formPrezzo').value     = prodotto.prezzoBase;
     document.getElementById('modalTitle').textContent = 'Modifica Prodotto';
+    aggiornaLabelPrezzo(prodotto.unitaMisura);
     openModal('modalNuovoProdotto');
 }
 

@@ -65,11 +65,28 @@ switch ($action) {
             redirectWithMessage('/admin/prodotti.php', 'ID non valido', 'error');
         }
 
-        // Verifica dipendenze
+        // Verifica dipendenze — lavorazioni
         $check = fetchOne($conn, "SELECT COUNT(*) as c FROM LAVORAZIONE WHERE idProdotto = ?", [$idProdotto]);
         if ($check['c'] > 0) {
             redirectWithMessage('/admin/prodotti.php',
                 'Impossibile eliminare: il prodotto ha lavorazioni associate', 'error');
+        }
+
+        // Verifica dipendenze — confezionamenti
+        $checkConf = fetchOne($conn, "SELECT COUNT(*) as c FROM CONFEZIONAMENTO WHERE idProdotto = ?", [$idProdotto]);
+        if ($checkConf['c'] > 0) {
+            redirectWithMessage('/admin/prodotti.php',
+                'Impossibile eliminare: il prodotto ha confezionamenti associati', 'error');
+        }
+
+        // Verifica dipendenze — dettagli vendita (via confezionamento)
+        $checkVendita = fetchOne($conn,
+            "SELECT COUNT(*) as c FROM DETTAGLIO_VENDITA dv
+             INNER JOIN CONFEZIONAMENTO c ON dv.idConfezionamento = c.idConfezionamento
+             WHERE c.idProdotto = ?", [$idProdotto]);
+        if ($checkVendita['c'] > 0) {
+            redirectWithMessage('/admin/prodotti.php',
+                'Impossibile eliminare: il prodotto ha vendite associate', 'error');
         }
 
         executeQuery($conn, "DELETE FROM PRODOTTO WHERE idProdotto = ?", [$idProdotto]);

@@ -7,6 +7,11 @@ require_once '../includes/db.php';
 require_once '../includes/auth.php';
 require_once '../includes/functions.php';
 
+// Inizializza sessione guest PRIMA di requireCliente()
+if (isset($_GET['guest']) && $_GET['guest'] == '1' && !isLoggedIn() && !isGuest()) {
+    loginGuest();
+}
+
 requireCliente();
 
 $idProdotto = isset($_GET['id']) ? (int)$_GET['id'] : 0;
