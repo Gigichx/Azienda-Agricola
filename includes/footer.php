@@ -17,6 +17,7 @@
 })();
 </script>
 <script src="/js/main.js"></script>
+<script src="/js/giacenze.js"></script>
 <?php if (isset($extraJS)): foreach ($extraJS as $js): ?>
     <script src="<?php echo htmlspecialchars($js); ?>"></script>
 <?php endforeach; endif; ?>

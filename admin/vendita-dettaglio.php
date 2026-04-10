@@ -17,7 +17,7 @@ if (!$idVendita) {
 }
 
 // Testata vendita
-$vendita = fetchOne($pdo,
+$vendita = fetchOne($conn,
     "SELECT v.*, c.nome as nomeCliente, c.nickname, c.telefono, c.email as emailCliente,
             l.nome as nomeLuogo
      FROM VENDITA v
@@ -32,7 +32,7 @@ if (!$vendita) {
 }
 
 // Righe dettaglio
-$dettagli = fetchAll($pdo,
+$dettagli = fetchAll($conn,
     "SELECT dv.*,
             p.nome as nomeProdotto, p.unitaMisura,
             c.nome as nomeCategoria,

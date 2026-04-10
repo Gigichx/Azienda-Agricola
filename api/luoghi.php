@@ -15,8 +15,8 @@ $action = $_POST['action'] ?? '';
 switch ($action) {
 
     case 'create':
-        $nome     = sanitizeInput($_POST['nome'] ?? '');
-        $tipo     = $_POST['tipo'] ?? '';
+        $nome      = sanitizeInput($_POST['nome'] ?? '');
+        $tipo      = $_POST['tipo'] ?? '';
         $indirizzo = sanitizeInput($_POST['indirizzo'] ?? '');
 
         $tipiValidi = ['campo', 'laboratorio', 'punto vendita', 'magazzino'];
@@ -24,22 +24,21 @@ switch ($action) {
             redirectWithMessage('/admin/luoghi.php', 'Dati non validi', 'error');
         }
 
-        // Verifica duplicati
-        $check = fetchOne($pdo, "SELECT COUNT(*) as c FROM LUOGO WHERE nome = ?", [$nome]);
+        $check = fetchOne($conn, "SELECT COUNT(*) as c FROM LUOGO WHERE nome = ?", [$nome]);
         if ($check['c'] > 0) {
             redirectWithMessage('/admin/luoghi.php', 'Luogo già esistente con questo nome', 'error');
         }
 
         $sql = "INSERT INTO LUOGO (nome, indirizzo, tipo) VALUES (?, ?, ?)";
-        executeQuery($pdo, $sql, [$nome, $indirizzo ?: null, $tipo]);
+        executeQuery($conn, $sql, [$nome, $indirizzo ?: null, $tipo]);
 
         redirectWithMessage('/admin/luoghi.php', 'Luogo creato con successo', 'success');
         break;
 
     case 'update':
-        $idLuogo  = (int)($_POST['idLuogo'] ?? 0);
-        $nome     = sanitizeInput($_POST['nome'] ?? '');
-        $tipo     = $_POST['tipo'] ?? '';
+        $idLuogo   = (int)($_POST['idLuogo'] ?? 0);
+        $nome      = sanitizeInput($_POST['nome'] ?? '');
+        $tipo      = $_POST['tipo'] ?? '';
         $indirizzo = sanitizeInput($_POST['indirizzo'] ?? '');
 
         $tipiValidi = ['campo', 'laboratorio', 'punto vendita', 'magazzino'];
@@ -47,8 +46,7 @@ switch ($action) {
             redirectWithMessage('/admin/luoghi.php', 'Dati non validi', 'error');
         }
 
-        // Verifica duplicati (escludendo sé stesso)
-        $check = fetchOne($pdo,
+        $check = fetchOne($conn,
             "SELECT COUNT(*) as c FROM LUOGO WHERE nome = ? AND idLuogo != ?",
             [$nome, $idLuogo]);
         if ($check['c'] > 0) {
@@ -56,7 +54,7 @@ switch ($action) {
         }
 
         $sql = "UPDATE LUOGO SET nome = ?, indirizzo = ?, tipo = ? WHERE idLuogo = ?";
-        executeQuery($pdo, $sql, [$nome, $indirizzo ?: null, $tipo, $idLuogo]);
+        executeQuery($conn, $sql, [$nome, $indirizzo ?: null, $tipo, $idLuogo]);
 
         redirectWithMessage('/admin/luoghi.php', 'Luogo aggiornato', 'success');
         break;
@@ -68,22 +66,21 @@ switch ($action) {
             redirectWithMessage('/admin/luoghi.php', 'ID non valido', 'error');
         }
 
-        // Verifica dipendenze
         $checks = [
-            ["SELECT COUNT(*) as c FROM LAVORAZIONE WHERE idLuogo = ?", 'lavorazioni'],
+            ["SELECT COUNT(*) as c FROM LAVORAZIONE WHERE idLuogo = ?",    'lavorazioni'],
             ["SELECT COUNT(*) as c FROM CONFEZIONAMENTO WHERE idLuogo = ?", 'confezionamenti'],
-            ["SELECT COUNT(*) as c FROM VENDITA WHERE idLuogo = ?", 'vendite'],
-            ["SELECT COUNT(*) as c FROM DISPENSA WHERE idLuogo = ?", 'dispense'],
+            ["SELECT COUNT(*) as c FROM VENDITA WHERE idLuogo = ?",         'vendite'],
+            ["SELECT COUNT(*) as c FROM DISPENSA WHERE idLuogo = ?",        'dispense'],
         ];
         foreach ($checks as [$sql, $label]) {
-            $res = fetchOne($pdo, $sql, [$idLuogo]);
+            $res = fetchOne($conn, $sql, [$idLuogo]);
             if ($res['c'] > 0) {
                 redirectWithMessage('/admin/luoghi.php',
                     "Impossibile eliminare: il luogo ha $label associati", 'error');
             }
         }
 
-        executeQuery($pdo, "DELETE FROM LUOGO WHERE idLuogo = ?", [$idLuogo]);
+        executeQuery($conn, "DELETE FROM LUOGO WHERE idLuogo = ?", [$idLuogo]);
         redirectWithMessage('/admin/luoghi.php', 'Luogo eliminato', 'success');
         break;
 
@@ -96,13 +93,13 @@ switch ($action) {
             redirectWithMessage('/admin/luoghi.php', 'Dati non validi', 'error');
         }
 
-        $check = fetchOne($pdo, "SELECT COUNT(*) as c FROM DISPENSA WHERE nome = ? AND idLuogo = ?", [$nomeDispensa, $idLuogo]);
+        $check = fetchOne($conn, "SELECT COUNT(*) as c FROM DISPENSA WHERE nome = ? AND idLuogo = ?", [$nomeDispensa, $idLuogo]);
         if ($check['c'] > 0) {
             redirectWithMessage('/admin/luoghi.php', 'Dispensa già esistente in questo luogo', 'error');
         }
 
         $sql = "INSERT INTO DISPENSA (nome, ubicazione, idLuogo) VALUES (?, ?, ?)";
-        executeQuery($pdo, $sql, [$nomeDispensa, $ubicazione ?: null, $idLuogo]);
+        executeQuery($conn, $sql, [$nomeDispensa, $ubicazione ?: null, $idLuogo]);
         redirectWithMessage('/admin/luoghi.php', 'Dispensa creata con successo', 'success');
         break;
 

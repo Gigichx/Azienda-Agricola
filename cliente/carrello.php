@@ -25,7 +25,7 @@ foreach ($carrello as $key => $item) {
             INNER JOIN PRODOTTO p ON conf.idProdotto = p.idProdotto
             INNER JOIN CATEGORIA cat ON p.idCategoria = cat.idCategoria
             WHERE conf.idConfezionamento = ?";
-    $det = fetchOne($pdo, $sql, [$item['idConfezionamento']]);
+    $det = fetchOne($conn, $sql, [$item['idConfezionamento']]);
     if ($det) {
         $sub    = $det['prezzo'] * $item['quantita'];
         $totale += $sub;
@@ -86,10 +86,13 @@ include '../includes/header_cliente.php';
                             <i class="fas fa-minus" style="font-size:.6rem"></i>
                         </button>
                         <input type="number" name="quantita"
-                               class="form-control text-center"
+                               class="form-control text-center qty-input"
                                value="<?php echo $item['quantita']; ?>"
-                               min="1" max="<?php echo $item['giacenzaAttuale']; ?>"
-                               onchange="this.form.submit()">
+                               min="1"
+                               max="<?php echo $item['giacenzaAttuale']; ?>"
+                               maxlength="8"
+                               data-max="<?php echo $item['giacenzaAttuale']; ?>"
+                               onchange="capQuantita(this); this.form.submit()">
                         <button type="button" class="btn btn-outline-secondary"
                                 onclick="cambiaQta(this, 1)">
                             <i class="fas fa-plus" style="font-size:.6rem"></i>
@@ -162,6 +165,18 @@ function cambiaQta(btn, delta) {
         input.value = val;
         form.submit();
     }
+}
+function capQuantita(input) {
+    let val = parseInt(input.value) || 1;
+    const max = parseInt(input.dataset.max) || 99999999;
+    const min = parseInt(input.min) || 1;
+    if (val > max) {
+        input.value = max;
+        showToast('Quantità ridotta alla giacenza massima disponibile (' + max + ')', 'warning');
+    }
+    if (val < min) input.value = min;
+    // limite 8 cifre
+    if (String(input.value).length > 8) input.value = String(input.value).slice(0, 8);
 }
 </script>
 <?php endif; ?>

@@ -10,7 +10,7 @@ require_once '../includes/functions.php';
 requireCliente();
 $pageTitle = 'Il Mio Profilo';
 
-$cliente = fetchOne($pdo,
+$cliente = fetchOne($conn,
     "SELECT c.*, u.email, u.dataRegistrazione
      FROM CLIENTE c
      INNER JOIN UTENTE u ON c.idUtente = u.idUtente
@@ -18,7 +18,7 @@ $cliente = fetchOne($pdo,
     [getUserId()]
 );
 
-$ordini = fetchAll($pdo,
+$ordini = fetchAll($conn,
     "SELECT v.*, l.nome as nomeLuogo,
             (SELECT COUNT(*) FROM DETTAGLIO_VENDITA WHERE idVendita = v.idVendita) as numeroArticoli
      FROM VENDITA v
@@ -29,7 +29,7 @@ $ordini = fetchAll($pdo,
     [$cliente['idCliente']]
 );
 
-$stats = fetchOne($pdo,
+$stats = fetchOne($conn,
     "SELECT COUNT(*) as totaleOrdini, COALESCE(SUM(totalePagato),0) as totaleSpeso
      FROM VENDITA WHERE idCliente = ?",
     [$cliente['idCliente']]
@@ -113,7 +113,7 @@ include '../includes/header_cliente.php';
                 </div>
 
                 <?php
-                $dettagli = fetchAll($pdo,
+                $dettagli = fetchAll($conn,
                     "SELECT dv.*, p.nome as nomeProdotto
                      FROM DETTAGLIO_VENDITA dv
                      INNER JOIN PRODOTTO p ON dv.idProdotto = p.idProdotto

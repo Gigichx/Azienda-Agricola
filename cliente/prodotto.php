@@ -14,7 +14,7 @@ if (!$idProdotto) {
     redirectWithMessage('/cliente/catalogo.php', 'Prodotto non trovato', 'error');
 }
 
-$prodotto = fetchOne($pdo,
+$prodotto = fetchOne($conn,
     "SELECT p.*, c.nome as nomeCategoria, c.idCategoria,
             COALESCE(SUM(conf.giacenzaAttuale), 0) as giacenzaTotale
      FROM PRODOTTO p
@@ -30,7 +30,7 @@ if (!$prodotto) {
 }
 
 $pageTitle  = $prodotto['nome'];
-$confezioni = fetchAll($pdo,
+$confezioni = fetchAll($conn,
     "SELECT * FROM CONFEZIONAMENTO WHERE idProdotto = ? AND giacenzaAttuale > 0 ORDER BY pesoNetto",
     [$idProdotto]
 );
@@ -119,7 +119,11 @@ include '../includes/header_cliente.php';
                         <i class="fas fa-minus" style="font-size:.65rem"></i>
                     </button>
                     <input type="number" name="quantita" id="inputQta"
-                           class="form-control text-center" value="1" min="1" max="99" required>
+                           class="form-control text-center qty-input"
+                           value="1" min="1" max="99"
+                           maxlength="8"
+                           data-max="99"
+                           required>
                     <button type="button" class="btn btn-outline-secondary" onclick="cambiaQta(1)">
                         <i class="fas fa-plus" style="font-size:.65rem"></i>
                     </button>
@@ -145,19 +149,39 @@ include '../includes/header_cliente.php';
 
 <script>
 function cambiaQta(delta) {
-    const input = document.getElementById('inputQta');
-    const val   = parseInt(input.value) + delta;
-    if (val >= parseInt(input.min) && val <= parseInt(input.max)) {
-        input.value = val;
+    const input   = document.getElementById('inputQta');
+    const current = parseInt(input.value) || 1;
+    const max     = parseInt(input.dataset.max || input.max) || 99;
+    const min     = parseInt(input.min) || 1;
+    const newVal  = current + delta;
+    if (newVal >= min && newVal <= max) {
+        input.value = newVal;
+    } else if (newVal > max) {
+        input.value = max;
+        if (typeof showToast === 'function') showToast('Quantità massima disponibile: ' + max, 'warning');
     }
 }
 
 document.getElementById('selConfezione')?.addEventListener('change', function () {
-    const opt     = this.options[this.selectedIndex];
+    const opt      = this.options[this.selectedIndex];
     const giacenza = parseInt(opt.dataset.giacenza) || 99;
-    const input   = document.getElementById('inputQta');
-    input.max     = giacenza;
-    if (parseInt(input.value) > giacenza) input.value = giacenza;
+    const input    = document.getElementById('inputQta');
+    input.max           = giacenza;
+    input.dataset.max   = giacenza;
+    if (parseInt(input.value) > giacenza) {
+        input.value = giacenza;
+        if (typeof showToast === 'function') showToast('Quantità ridotta alla giacenza massima: ' + giacenza, 'warning');
+    }
+});
+
+// Limite 8 caratteri durante la digitazione
+document.getElementById('inputQta')?.addEventListener('input', function () {
+    if (this.value.length > 8) this.value = this.value.slice(0, 8);
+    const max = parseInt(this.dataset.max || this.max) || 99;
+    if (parseInt(this.value) > max) {
+        this.value = max;
+        if (typeof showToast === 'function') showToast('Quantità ridotta alla giacenza massima: ' + max, 'warning');
+    }
 });
 </script>
 

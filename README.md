@@ -27,7 +27,7 @@ Sistema gestionale completo per aziende agricole con e-commerce integrato.
 ## 🛠️ Stack Tecnologico
 
 - **Backend**: PHP 7.4+ (architettura procedurale organizzata)
-- **Database**: MySQL 5.7+ con PDO
+- **Database**: MySQL 5.7+ con mysqli
 - **Frontend**: HTML5, CSS3 custom, JavaScript vanilla
 - **Ambiente**: Docker (locale) con phpMyAdmin
 

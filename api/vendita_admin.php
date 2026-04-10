@@ -26,9 +26,10 @@ if ($action === 'create') {
         redirectWithMessage('/admin/vendite.php', 'Dati non validi: cliente, luogo e almeno un prodotto sono obbligatori', 'error');
     }
 
-    try {
-        $pdo->beginTransaction();
+    // Avvia transazione
+    mysqli_begin_transaction($conn);
 
+    try {
         $totaleCalcolato = 0;
         $dettagli        = [];
 
@@ -50,12 +51,12 @@ if ($action === 'create') {
 
             if ($tipo === 'FRESCO_SFUSO') {
                 $unitaMisura = $item['unitaMisura'] ?? 'pezzo';
-                $prodotto = fetchOne($pdo, "SELECT prezzoBase FROM PRODOTTO WHERE idProdotto = ?", [$idProdotto]);
+                $prodotto    = fetchOne($conn, "SELECT prezzoBase FROM PRODOTTO WHERE idProdotto = ?", [$idProdotto]);
                 if (!$prodotto) throw new Exception("Prodotto non trovato");
                 $prezzoUnitario = (float)$prodotto['prezzoBase'];
 
                 if ($unitaMisura === 'pezzo') {
-                    $quantita = max(1, (int)($item['quantita'] ?? 0));
+                    $quantita  = max(1, (int)($item['quantita'] ?? 0));
                     $subtotale = $omaggio ? 0 : $prezzoUnitario * $quantita;
                 } else {
                     $pesoVenduto = (float)($item['pesoVenduto'] ?? 0);
@@ -68,17 +69,18 @@ if ($action === 'create') {
                 $quantita          = (int)($item['quantita'] ?? 0);
                 if (!$idConfezionamento || $quantita <= 0) throw new Exception("Dati confezionamento non validi");
 
-                if (!checkGiacenzaConfezionamento($pdo, $idConfezionamento, $quantita)) {
-                    throw new Exception("Giacenza insufficiente per un prodotto confezionato");
-                }
+                // Cap quantità alla giacenza disponibile
+                $giacenzaMax = getGiacenzaConfezionamento($conn, $idConfezionamento);
+                if ($giacenzaMax <= 0) throw new Exception("Giacenza esaurita per un prodotto confezionato");
+                if ($quantita > $giacenzaMax) $quantita = $giacenzaMax;
 
-                $conf = fetchOne($pdo, "SELECT prezzo FROM CONFEZIONAMENTO WHERE idConfezionamento = ?", [$idConfezionamento]);
+                $conf = fetchOne($conn, "SELECT prezzo FROM CONFEZIONAMENTO WHERE idConfezionamento = ?", [$idConfezionamento]);
                 if (!$conf) throw new Exception("Confezionamento non trovato");
                 $prezzoUnitario = (float)$conf['prezzo'];
                 $subtotale      = $omaggio ? 0 : $prezzoUnitario * $quantita;
 
                 // Scala giacenza (anche per omaggi)
-                if (!scalaGiacenzaConfezionamento($pdo, $idConfezionamento, $quantita)) {
+                if (!scalaGiacenzaConfezionamento($conn, $idConfezionamento, $quantita)) {
                     throw new Exception("Errore scalatura giacenza confezionamento");
                 }
 
@@ -87,17 +89,17 @@ if ($action === 'create') {
                 $pesoVenduto    = (float)($item['pesoVenduto'] ?? 0);
                 if (!$idRiservaUsata || $pesoVenduto <= 0) throw new Exception("Dati riserva non validi");
 
-                if (!checkGiacenzaRiserva($pdo, $idRiservaUsata, $pesoVenduto)) {
+                if (!checkGiacenzaRiserva($conn, $idRiservaUsata, $pesoVenduto)) {
                     throw new Exception("Quantità in riserva insufficiente");
                 }
 
-                $riserva = fetchOne($pdo, "SELECT prezzoAlKg FROM RISERVA WHERE idRiserva = ?", [$idRiservaUsata]);
+                $riserva = fetchOne($conn, "SELECT prezzoAlKg FROM RISERVA WHERE idRiserva = ?", [$idRiservaUsata]);
                 if (!$riserva) throw new Exception("Riserva non trovata");
                 $prezzoUnitario = (float)$riserva['prezzoAlKg'];
                 $subtotale      = $omaggio ? 0 : $prezzoUnitario * $pesoVenduto;
 
                 // Scala quantità riserva (anche per omaggi)
-                if (!scalaQuantitaRiserva($pdo, $idRiservaUsata, $pesoVenduto)) {
+                if (!scalaQuantitaRiserva($conn, $idRiservaUsata, $pesoVenduto)) {
                     throw new Exception("Errore scalatura quantità riserva");
                 }
             }
@@ -105,18 +107,18 @@ if ($action === 'create') {
             $totaleCalcolato += $subtotale;
 
             $dettagli[] = [
-                'tipo'             => $tipo,
-                'idProdotto'       => $idProdotto,
-                'idConfezionamento'=> $idConfezionamento,
-                'idRiserva'        => $idRiservaUsata,   // FIX: incluso per RISERVA_SFUSA
-                'quantita'         => $quantita,
-                'pesoVenduto'      => $pesoVenduto,
-                'prezzoUnitario'   => $prezzoUnitario,
-                'omaggio'          => $omaggio,
+                'tipo'              => $tipo,
+                'idProdotto'        => $idProdotto,
+                'idConfezionamento' => $idConfezionamento,
+                'idRiserva'         => $idRiservaUsata,
+                'quantita'          => $quantita,
+                'pesoVenduto'       => $pesoVenduto,
+                'prezzoUnitario'    => $prezzoUnitario,
+                'omaggio'           => $omaggio,
             ];
         }
 
-        // Se totalePagato non specificato o 0, coincide col calcolato
+        // Se totalePagato non specificato o negativo, coincide col calcolato
         if ($totalePagato === null || $totalePagato < 0) {
             $totalePagato = $totaleCalcolato;
         }
@@ -124,17 +126,16 @@ if ($action === 'create') {
         // Crea testata vendita
         $sqlVendita = "INSERT INTO VENDITA (dataVendita, totaleCalcolato, totalePagato, note, idCliente, idLuogo)
                        VALUES (?, ?, ?, ?, ?, ?)";
-        $idVendita  = insertAndGetId($pdo, $sqlVendita, [
+        $idVendita  = insertAndGetId($conn, $sqlVendita, [
             $dataVendita, $totaleCalcolato, $totalePagato, $note ?: null, $idCliente, $idLuogo
         ]);
 
         // Inserisci righe dettaglio
         foreach ($dettagli as $det) {
-            // Il trigger tr_validazione_dettaglio_vendita verifica i campi obbligatori per tipo
             $sqlDet = "INSERT INTO DETTAGLIO_VENDITA
                             (idVendita, tipoVendita, quantita, pesoVenduto, prezzoUnitario, omaggio, idProdotto, idConfezionamento)
                        VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-            executeQuery($pdo, $sqlDet, [
+            executeQuery($conn, $sqlDet, [
                 $idVendita,
                 $det['tipo'],
                 $det['quantita'],
@@ -142,15 +143,15 @@ if ($action === 'create') {
                 $det['prezzoUnitario'],
                 $det['omaggio'] ? 1 : 0,
                 $det['idProdotto'],
-                $det['idConfezionamento'],   // NULL per FRESCO_SFUSO e RISERVA_SFUSA
+                $det['idConfezionamento'],
             ]);
         }
 
-        $pdo->commit();
+        mysqli_commit($conn);
         redirectWithMessage('/admin/vendite.php', 'Vendita registrata con successo (ID #' . $idVendita . ')', 'success');
 
     } catch (Exception $e) {
-        if ($pdo->inTransaction()) $pdo->rollBack();
+        mysqli_rollback($conn);
         error_log("Errore vendita admin: " . $e->getMessage());
         redirectWithMessage('/admin/vendite.php', 'Errore: ' . $e->getMessage(), 'error');
     }

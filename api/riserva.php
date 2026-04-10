@@ -2,7 +2,6 @@
 /**
  * API RISERVA
  * Azienda Agricola
- * Gestisce CRUD riserve in dispensa
  */
 
 require_once '../includes/db.php';
@@ -33,7 +32,7 @@ switch ($action) {
                     (nome, dataProduzione, quantitaIniziale, quantitaAttuale, prezzoAlKg, contenitore, idProdotto, idLavorazione, idDispensa)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-        executeQuery($pdo, $sql, [
+        executeQuery($conn, $sql, [
             $nome, $dataProduzione, $quantitaIniziale, $quantitaIniziale,
             $prezzoAlKg, $contenitore ?: null, $idProdotto, $idLavorazione, $idDispensa
         ]);
@@ -42,11 +41,11 @@ switch ($action) {
         break;
 
     case 'update':
-        $idRiserva  = (int)($_POST['idRiserva'] ?? 0);
-        $nome       = sanitizeInput($_POST['nome'] ?? '');
-        $prezzoAlKg = (float)($_POST['prezzoAlKg'] ?? 0);
+        $idRiserva   = (int)($_POST['idRiserva'] ?? 0);
+        $nome        = sanitizeInput($_POST['nome'] ?? '');
+        $prezzoAlKg  = (float)($_POST['prezzoAlKg'] ?? 0);
         $contenitore = sanitizeInput($_POST['contenitore'] ?? '');
-        $idDispensa = (int)($_POST['idDispensa'] ?? 0);
+        $idDispensa  = (int)($_POST['idDispensa'] ?? 0);
 
         if (!$idRiserva || empty($nome) || !$idDispensa) {
             redirectWithMessage('/admin/riserva.php', 'Dati non validi', 'error');
@@ -55,7 +54,7 @@ switch ($action) {
         $sql = "UPDATE RISERVA
                 SET nome = ?, prezzoAlKg = ?, contenitore = ?, idDispensa = ?
                 WHERE idRiserva = ?";
-        executeQuery($pdo, $sql, [$nome, $prezzoAlKg, $contenitore ?: null, $idDispensa, $idRiserva]);
+        executeQuery($conn, $sql, [$nome, $prezzoAlKg, $contenitore ?: null, $idDispensa, $idRiserva]);
 
         redirectWithMessage('/admin/riserva.php', 'Riserva aggiornata', 'success');
         break;
@@ -67,8 +66,7 @@ switch ($action) {
             redirectWithMessage('/admin/riserva.php', 'ID non valido', 'error');
         }
 
-        // Verifica che non ci siano confezionamenti collegati
-        $check = fetchOne($pdo,
+        $check = fetchOne($conn,
             "SELECT COUNT(*) as c FROM CONFEZIONAMENTO WHERE idRiserva = ?",
             [$idRiserva]);
         if ($check['c'] > 0) {
@@ -76,7 +74,7 @@ switch ($action) {
                 'Impossibile eliminare: la riserva ha confezionamenti associati', 'error');
         }
 
-        executeQuery($pdo, "DELETE FROM RISERVA WHERE idRiserva = ?", [$idRiserva]);
+        executeQuery($conn, "DELETE FROM RISERVA WHERE idRiserva = ?", [$idRiserva]);
         redirectWithMessage('/admin/riserva.php', 'Riserva eliminata', 'success');
         break;
 

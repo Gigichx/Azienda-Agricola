@@ -30,7 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                      FROM UTENTE u
                      LEFT JOIN CLIENTE c ON u.idUtente = c.idUtente
                      WHERE u.email = ? AND u.attivo = TRUE";
-            $user = fetchOne($pdo, $sql, [$email]);
+            $user = fetchOne($conn, $sql, [$email]);
 
             if ($user && verifyPassword($password, $user['password'])) {
                 login($user);

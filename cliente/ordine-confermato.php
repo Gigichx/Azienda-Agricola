@@ -16,7 +16,7 @@ if (!isset($_SESSION['ordine_confermato'])) {
 $idVendita = $_SESSION['ordine_confermato'];
 unset($_SESSION['ordine_confermato']);
 
-$ordine = fetchOne($pdo,
+$ordine = fetchOne($conn,
     "SELECT v.*, l.nome as nomeLuogo
      FROM VENDITA v
      INNER JOIN LUOGO l ON v.idLuogo = l.idLuogo
@@ -28,7 +28,7 @@ if (!$ordine) {
     redirectWithMessage('/cliente/catalogo.php', 'Ordine non trovato', 'error');
 }
 
-$dettagli = fetchAll($pdo,
+$dettagli = fetchAll($conn,
     "SELECT dv.*, p.nome as nomeProdotto
      FROM DETTAGLIO_VENDITA dv
      INNER JOIN PRODOTTO p ON dv.idProdotto = p.idProdotto

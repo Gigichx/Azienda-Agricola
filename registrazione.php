@@ -32,19 +32,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = 'Le password non coincidono.';
     } else {
         try {
-            $check = fetchOne($pdo, "SELECT idUtente FROM UTENTE WHERE email = ?", [$email]);
+            $check = fetchOne($conn, "SELECT idUtente FROM UTENTE WHERE email = ?", [$email]);
             if ($check) {
                 $error = 'Email già registrata. Prova ad accedere.';
             } else {
-                $pdo->beginTransaction();
+                mysqli_begin_transaction($conn);
 
                 $sqlU = "INSERT INTO UTENTE (nome, cognome, email, password, ruolo)
                          VALUES (?, ?, ?, ?, 'cliente')";
-                $idU  = insertAndGetId($pdo, $sqlU, [$nome, $cognome, $email, hashPassword($password)]);
+                $idU  = insertAndGetId($conn, $sqlU, [$nome, $cognome, $email, hashPassword($password)]);
 
                 $sqlC = "INSERT INTO CLIENTE (idUtente, nome, nickname, telefono, email, occasionale)
                          VALUES (?, ?, ?, ?, ?, FALSE)";
-                executeQuery($pdo, $sqlC, [
+                executeQuery($conn, $sqlC, [
                     $idU,
                     $nome . ' ' . $cognome,
                     generaNickname($nome, $cognome),
@@ -52,11 +52,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $email,
                 ]);
 
-                $pdo->commit();
+                mysqli_commit($conn);
                 $success = true;
             }
         } catch (Exception $e) {
-            if ($pdo->inTransaction()) $pdo->rollBack();
+            mysqli_rollback($conn);
             error_log("Errore registrazione: " . $e->getMessage());
             $error = 'Errore durante la registrazione. Riprova più tardi.';
         }

@@ -2,7 +2,6 @@
 /**
  * API CONFEZIONAMENTO
  * Azienda Agricola
- * Gestisce CRUD confezionamenti
  */
 
 require_once '../includes/db.php';
@@ -30,39 +29,37 @@ switch ($action) {
             redirectWithMessage('/admin/confezionamento.php', 'Dati non validi', 'error');
         }
 
-        try {
-            $pdo->beginTransaction();
+        mysqli_begin_transaction($conn);
 
-            // Inserisci confezionamento (la giacenza viene impostata dal trigger)
+        try {
             $sql = "INSERT INTO CONFEZIONAMENTO
                         (dataProduzione, dataConfezionamento, numeroConfezioni, pesoNetto, prezzo,
                          giacenzaAttuale, idProdotto, idLavorazione, idRiserva, idLuogo)
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-            executeQuery($pdo, $sql, [
+            executeQuery($conn, $sql, [
                 $dataProduzione, $dataConfezionamento, $numeroConfezioni,
                 $pesoNetto, $prezzo, $numeroConfezioni,
                 $idProdotto, $idLavorazione, $idRiserva, $idLuogo
             ]);
 
-            // Se viene da una riserva, scala la quantità dalla riserva
             if ($idRiserva) {
                 $pesoTotale = $pesoNetto * $numeroConfezioni;
-                $riserva = fetchOne($pdo, "SELECT quantitaAttuale FROM RISERVA WHERE idRiserva = ?", [$idRiserva]);
+                $riserva    = fetchOne($conn, "SELECT quantitaAttuale FROM RISERVA WHERE idRiserva = ?", [$idRiserva]);
                 if (!$riserva || $riserva['quantitaAttuale'] < $pesoTotale) {
                     throw new Exception('Quantità in riserva insufficiente (' .
                         ($riserva['quantitaAttuale'] ?? 0) . ' kg disponibili, ' . $pesoTotale . ' kg richiesti)');
                 }
-                if (!scalaQuantitaRiserva($pdo, $idRiserva, $pesoTotale)) {
+                if (!scalaQuantitaRiserva($conn, $idRiserva, $pesoTotale)) {
                     throw new Exception('Errore scalatura riserva');
                 }
             }
 
-            $pdo->commit();
+            mysqli_commit($conn);
             redirectWithMessage('/admin/confezionamento.php', 'Confezionamento registrato con successo', 'success');
 
         } catch (Exception $e) {
-            if ($pdo->inTransaction()) $pdo->rollBack();
+            mysqli_rollback($conn);
             redirectWithMessage('/admin/confezionamento.php', 'Errore: ' . $e->getMessage(), 'error');
         }
         break;
@@ -74,8 +71,7 @@ switch ($action) {
             redirectWithMessage('/admin/confezionamento.php', 'ID non valido', 'error');
         }
 
-        // Verifica che non ci siano vendite collegate
-        $check = fetchOne($pdo,
+        $check = fetchOne($conn,
             "SELECT COUNT(*) as c FROM DETTAGLIO_VENDITA WHERE idConfezionamento = ?",
             [$idConfezionamento]);
         if ($check['c'] > 0) {
@@ -83,7 +79,7 @@ switch ($action) {
                 'Impossibile eliminare: il confezionamento ha vendite associate', 'error');
         }
 
-        executeQuery($pdo, "DELETE FROM CONFEZIONAMENTO WHERE idConfezionamento = ?", [$idConfezionamento]);
+        executeQuery($conn, "DELETE FROM CONFEZIONAMENTO WHERE idConfezionamento = ?", [$idConfezionamento]);
         redirectWithMessage('/admin/confezionamento.php', 'Confezionamento eliminato', 'success');
         break;
 

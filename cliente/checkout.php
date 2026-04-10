@@ -23,7 +23,7 @@ foreach ($carrello as $item) {
             FROM CONFEZIONAMENTO conf
             INNER JOIN PRODOTTO p ON conf.idProdotto = p.idProdotto
             WHERE conf.idConfezionamento = ?";
-    $det = fetchOne($pdo, $sql, [$item['idConfezionamento']]);
+    $det = fetchOne($conn, $sql, [$item['idConfezionamento']]);
 
     if ($det) {
         if ($det['giacenzaAttuale'] < $item['quantita']) {
@@ -43,7 +43,7 @@ foreach ($carrello as $item) {
 }
 
 // Dati cliente
-$cliente = fetchOne($pdo,
+$cliente = fetchOne($conn,
     "SELECT c.* FROM CLIENTE c INNER JOIN UTENTE u ON c.idUtente = u.idUtente WHERE u.idUtente = ?",
     [getUserId()]
 );
