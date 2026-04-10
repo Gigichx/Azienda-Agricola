@@ -1,34 +1,28 @@
 <?php
 /**
  * CATALOGO.PHP - Cliente
- * Azienda Agricola
  */
 
 require_once '../includes/db.php';
 require_once '../includes/auth.php';
 require_once '../includes/functions.php';
 
-// Verifica autenticazione cliente
 requireCliente();
+$pageTitle = 'Catalogo';
 
-$pageTitle = 'Catalogo Prodotti';
-
-// Filtro categoria
 $categoriaFiltro = isset($_GET['categoria']) ? (int)$_GET['categoria'] : null;
 
-// Ottieni tutte le categorie per il menu
-$sqlCategorie = "SELECT c.*, COUNT(p.idProdotto) as totaleProdotti
-                 FROM CATEGORIA c
-                 LEFT JOIN PRODOTTO p ON c.idCategoria = p.idCategoria
-                 GROUP BY c.idCategoria
-                 ORDER BY c.nome";
-$categorie = fetchAll($pdo, $sqlCategorie);
+$categorie = fetchAll($pdo,
+    "SELECT c.*, COUNT(p.idProdotto) as totaleProdotti
+     FROM CATEGORIA c
+     LEFT JOIN PRODOTTO p ON c.idCategoria = p.idCategoria
+     GROUP BY c.idCategoria ORDER BY c.nome"
+);
 
-// Query prodotti con giacenza
-$sqlProdotti = "SELECT p.*, c.nome as nomeCategoria,
+$sqlProdotti = "SELECT p.*, cat.nome as nomeCategoria,
                 COALESCE(SUM(conf.giacenzaAttuale), 0) as giacenzaTotale
                 FROM PRODOTTO p
-                INNER JOIN CATEGORIA c ON p.idCategoria = c.idCategoria
+                INNER JOIN CATEGORIA cat ON p.idCategoria = cat.idCategoria
                 LEFT JOIN CONFEZIONAMENTO conf ON p.idProdotto = conf.idProdotto
                 " . ($categoriaFiltro ? "WHERE p.idCategoria = ?" : "") . "
                 GROUP BY p.idProdotto
@@ -37,99 +31,88 @@ $sqlProdotti = "SELECT p.*, c.nome as nomeCategoria,
 $params = $categoriaFiltro ? [$categoriaFiltro] : [];
 $prodotti = fetchAll($pdo, $sqlProdotti, $params);
 
-// Ottieni nome categoria selezionata
-$categoriaNome = 'Tutti i Prodotti';
+$titoloPagina = 'Tutti i prodotti';
 if ($categoriaFiltro) {
     $catData = fetchOne($pdo, "SELECT nome FROM CATEGORIA WHERE idCategoria = ?", [$categoriaFiltro]);
-    if ($catData) {
-        $categoriaNome = $catData['nome'];
-    }
+    if ($catData) $titoloPagina = $catData['nome'];
 }
 
 include '../includes/header_cliente.php';
 ?>
 
-<div class="catalogo-container">
-    <!-- Sidebar Categorie -->
-    <aside class="catalogo-sidebar">
-        <div class="categoria-filter">
-            <h3 class="categoria-filter-title">Categorie</h3>
-            <ul class="categoria-list">
-                <li class="categoria-item">
-                    <a href="/cliente/catalogo.php" class="categoria-link <?php echo !$categoriaFiltro ? 'active' : ''; ?>">
-                        <span>Tutti i Prodotti</span>
-                        <span class="categoria-count"><?php echo count($prodotti); ?></span>
-                    </a>
-                </li>
+<div class="row g-4">
+    <!-- Sidebar categorie -->
+    <aside class="col-lg-2 col-md-3">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-transparent border-0 pb-0">
+                <small class="fw-semibold text-muted text-uppercase" style="font-size:.68rem;letter-spacing:.06em">Categorie</small>
+            </div>
+            <div class="list-group list-group-flush rounded-bottom">
+                <a href="/cliente/catalogo.php"
+                   class="list-group-item list-group-item-action d-flex justify-content-between align-items-center py-2 small <?php echo !$categoriaFiltro ? 'active' : ''; ?>">
+                    Tutti
+                    <span class="badge <?php echo !$categoriaFiltro ? 'bg-white text-success' : 'bg-light text-muted'; ?>"><?php echo array_sum(array_column($categorie, 'totaleProdotti')); ?></span>
+                </a>
                 <?php foreach ($categorie as $cat): ?>
-                    <li class="categoria-item">
-                        <a href="/cliente/catalogo.php?categoria=<?php echo $cat['idCategoria']; ?>" 
-                           class="categoria-link <?php echo $categoriaFiltro == $cat['idCategoria'] ? 'active' : ''; ?>">
-                            <span><?php echo htmlspecialchars($cat['nome']); ?></span>
-                            <span class="categoria-count"><?php echo $cat['totaleProdotti']; ?></span>
-                        </a>
-                    </li>
+                <a href="/cliente/catalogo.php?categoria=<?php echo $cat['idCategoria']; ?>"
+                   class="list-group-item list-group-item-action d-flex justify-content-between align-items-center py-2 small <?php echo $categoriaFiltro == $cat['idCategoria'] ? 'active' : ''; ?>">
+                    <?php echo htmlspecialchars($cat['nome']); ?>
+                    <span class="badge <?php echo $categoriaFiltro == $cat['idCategoria'] ? 'bg-white text-success' : 'bg-light text-muted'; ?>"><?php echo $cat['totaleProdotti']; ?></span>
+                </a>
                 <?php endforeach; ?>
-            </ul>
+            </div>
         </div>
     </aside>
-    
-    <!-- Main Content -->
-    <main class="catalogo-main">
-        <!-- Header -->
-        <div class="catalogo-header">
-            <div class="catalogo-info">
-                <h1><?php echo htmlspecialchars($categoriaNome); ?></h1>
-                <p class="catalogo-count"><?php echo count($prodotti); ?> prodott<?php echo count($prodotti) != 1 ? 'i' : 'o'; ?> disponibil<?php echo count($prodotti) != 1 ? 'i' : 'e'; ?></p>
-            </div>
+
+    <!-- Prodotti -->
+    <div class="col-lg-10 col-md-9">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h4 class="mb-0"><?php echo htmlspecialchars($titoloPagina); ?></h4>
+            <small class="text-muted"><?php echo count($prodotti); ?> prodott<?php echo count($prodotti) != 1 ? 'i' : 'o'; ?></small>
         </div>
-        
-        <!-- Grid Prodotti -->
+
         <?php if (empty($prodotti)): ?>
-            <div class="empty-state">
-                <div class="empty-state-icon">🌾</div>
-                <h3 class="empty-state-title">Nessun prodotto trovato</h3>
-                <p class="empty-state-message">Non ci sono prodotti disponibili in questa categoria.</p>
-                <a href="/cliente/catalogo.php" class="btn btn-primary">Vedi tutti i prodotti</a>
+            <div class="text-center py-5 text-muted">
+                <i class="fas fa-seedling fa-3x mb-3"></i>
+                <p>Nessun prodotto disponibile in questa categoria.</p>
+                <a href="/cliente/catalogo.php" class="btn btn-outline-success btn-sm">Vedi tutti</a>
             </div>
         <?php else: ?>
-            <div class="catalogo-grid">
-                <?php foreach ($prodotti as $prodotto): ?>
-                    <div class="product-card">
-                        <div class="product-image">🌾</div>
-                        <div class="product-body">
-                            <div class="product-category"><?php echo htmlspecialchars($prodotto['nomeCategoria']); ?></div>
-                            <h3 class="product-name"><?php echo htmlspecialchars($prodotto['nome']); ?></h3>
-                            
-                            <div class="product-meta">
-                                <div class="product-price">
-                                    <?php echo formatPrice($prodotto['prezzoBase']); ?>
-                                    <span class="product-price-unit">/ <?php echo htmlspecialchars($prodotto['unitaMisura']); ?></span>
-                                </div>
-                                
-                                <div class="product-availability">
-                                    <?php if ($prodotto['giacenzaTotale'] > 0): ?>
-                                        <span class="status-badge disponibile">Disponibile</span>
-                                        <span class="product-stock"><?php echo $prodotto['giacenzaTotale']; ?> pezzi</span>
-                                    <?php else: ?>
-                                        <span class="status-badge esaurito">Esaurito</span>
-                                    <?php endif; ?>
-                                </div>
+            <div class="row row-cols-2 row-cols-md-3 row-cols-xl-4 g-3">
+                <?php foreach ($prodotti as $p): ?>
+                <div class="col">
+                    <div class="card border-0 shadow-sm h-100">
+                        <!-- Immagine placeholder -->
+                        <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height:130px;color:#9ca3af">
+                            <i class="fas fa-seedling fa-2x"></i>
+                        </div>
+                        <div class="card-body d-flex flex-column p-3">
+                            <div class="mb-1">
+                                <small class="text-muted"><?php echo htmlspecialchars($p['nomeCategoria']); ?></small>
                             </div>
-                            
-                            <a href="/cliente/prodotto.php?id=<?php echo $prodotto['idProdotto']; ?>" 
-                               class="btn btn-primary btn-block" style="margin-top: 1rem;">
-                                Dettagli
+                            <h6 class="card-title mb-2 fw-semibold" style="font-size:.9rem"><?php echo htmlspecialchars($p['nome']); ?></h6>
+                            <div class="d-flex justify-content-between align-items-center mt-auto">
+                                <div>
+                                    <span class="fw-bold text-success"><?php echo formatPrice($p['prezzoBase']); ?></span>
+                                    <span class="text-muted" style="font-size:.75rem">/ <?php echo $p['unitaMisura']; ?></span>
+                                </div>
+                                <?php if ($p['giacenzaTotale'] > 0): ?>
+                                    <span class="badge bg-success-subtle text-success border border-success-subtle" style="font-size:.68rem">Disponibile</span>
+                                <?php else: ?>
+                                    <span class="badge bg-danger-subtle text-danger border border-danger-subtle" style="font-size:.68rem">Esaurito</span>
+                                <?php endif; ?>
+                            </div>
+                            <a href="/cliente/prodotto.php?id=<?php echo $p['idProdotto']; ?>"
+                               class="btn btn-outline-success btn-sm mt-3">
+                                <i class="fas fa-eye me-1"></i>Dettagli
                             </a>
                         </div>
                     </div>
+                </div>
                 <?php endforeach; ?>
             </div>
         <?php endif; ?>
-    </main>
+    </div>
 </div>
 
-<?php
-$extraJS = [];
-include '../includes/footer.php';
-?>
+<?php include '../includes/footer_cliente.php'; ?>

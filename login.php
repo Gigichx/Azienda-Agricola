@@ -1,49 +1,42 @@
 <?php
 /**
  * LOGIN.PHP
- * Azienda Agricola
  */
 
 require_once 'includes/db.php';
 require_once 'includes/auth.php';
 require_once 'includes/functions.php';
 
-// Se già loggato, redirect
 if (isLoggedIn()) {
     redirectByRole();
 }
 
 $error = '';
-$timeout_message = '';
+$timeoutMsg = '';
 
-// Messaggio timeout sessione
 if (isset($_GET['timeout']) && $_GET['timeout'] == '1') {
-    $timeout_message = 'La tua sessione è scaduta. Effettua nuovamente il login.';
+    $timeoutMsg = 'La tua sessione è scaduta. Effettua nuovamente il login.';
 }
 
-// Gestione form login
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $email = sanitizeInput($_POST['email'] ?? '');
+    $email    = sanitizeInput($_POST['email'] ?? '');
     $password = $_POST['password'] ?? '';
-    
+
     if (empty($email) || empty($password)) {
-        $error = 'Inserisci email e password';
+        $error = 'Inserisci email e password.';
     } else {
         try {
-            // Query per ottenere utente con cliente associato
-            $sql = "SELECT u.*, c.idCliente 
-                    FROM UTENTE u
-                    LEFT JOIN CLIENTE c ON u.idUtente = c.idUtente
-                    WHERE u.email = ? AND u.attivo = TRUE";
-            
+            $sql  = "SELECT u.*, c.idCliente
+                     FROM UTENTE u
+                     LEFT JOIN CLIENTE c ON u.idUtente = c.idUtente
+                     WHERE u.email = ? AND u.attivo = TRUE";
             $user = fetchOne($pdo, $sql, [$email]);
-            
+
             if ($user && verifyPassword($password, $user['password'])) {
-                // Login successful
                 login($user);
                 redirectByRole();
             } else {
-                $error = 'Credenziali non valide';
+                $error = 'Email o password non corretti.';
             }
         } catch (Exception $e) {
             error_log("Errore login: " . $e->getMessage());
@@ -51,82 +44,74 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 }
-
-$pageTitle = 'Accedi';
 ?>
 <!DOCTYPE html>
 <html lang="it">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo $pageTitle; ?> | Azienda Agricola</title>
-    <link rel="stylesheet" href="/css/style.css">
+    <title>Accedi | Azienda Agricola</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="/css/cliente.css">
 </head>
-<body>
+<body class="bg-light">
 
-<div class="auth-container">
-    <div class="auth-box">
-        <div class="auth-header">
-            <div class="auth-logo">🌾</div>
-            <h1 class="auth-title">Benvenuto</h1>
-            <p class="auth-subtitle">Accedi al tuo account</p>
-        </div>
-        
-        <div class="auth-body">
-            <?php if ($timeout_message): ?>
-                <div class="alert alert-warning">
-                    <?php echo htmlspecialchars($timeout_message); ?>
+<div class="auth-page">
+    <div class="auth-card">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4 p-md-5">
+
+                <!-- Logo -->
+                <div class="text-center mb-4">
+                    <div class="auth-logo-icon mb-3">
+                        <i class="fas fa-leaf"></i>
+                    </div>
+                    <h4 class="fw-semibold mb-1">Benvenuto</h4>
+                    <p class="text-muted small mb-0">Accedi al tuo account</p>
                 </div>
-            <?php endif; ?>
-            
-            <?php if ($error): ?>
-                <div class="alert alert-error">
-                    <?php echo htmlspecialchars($error); ?>
-                </div>
-            <?php endif; ?>
-            
-            <form method="POST" action="/login.php">
-                <div class="form-group">
-                    <label for="email" class="form-label required">Email</label>
-                    <input 
-                        type="email" 
-                        id="email" 
-                        name="email" 
-                        class="form-input" 
-                        placeholder="tua@email.it"
-                        value="<?php echo htmlspecialchars($_POST['email'] ?? ''); ?>"
-                        required
-                        autocomplete="email"
-                    >
-                </div>
-                
-                <div class="form-group">
-                    <label for="password" class="form-label required">Password</label>
-                    <input 
-                        type="password" 
-                        id="password" 
-                        name="password" 
-                        class="form-input" 
-                        placeholder="••••••••"
-                        required
-                        autocomplete="current-password"
-                    >
-                </div>
-                
-                <button type="submit" class="btn btn-primary btn-block">
-                    Accedi
-                </button>
-            </form>
-        </div>
-        
-        <div class="auth-footer">
-            <p>
-                Non hai un account? 
-                <a href="/registrazione.php">Registrati ora</a>
-            </p>
+
+                <?php if ($timeoutMsg): ?>
+                    <div class="alert alert-warning alert-sm py-2 small">
+                        <i class="fas fa-clock me-1"></i><?php echo htmlspecialchars($timeoutMsg); ?>
+                    </div>
+                <?php endif; ?>
+
+                <?php if ($error): ?>
+                    <div class="alert alert-danger alert-sm py-2 small">
+                        <i class="fas fa-exclamation-circle me-1"></i><?php echo htmlspecialchars($error); ?>
+                    </div>
+                <?php endif; ?>
+
+                <form method="POST" action="/login.php">
+                    <div class="mb-3">
+                        <label for="email" class="form-label small fw-semibold">Email</label>
+                        <input type="email" id="email" name="email" class="form-control"
+                               placeholder="tua@email.it"
+                               value="<?php echo htmlspecialchars($_POST['email'] ?? ''); ?>"
+                               required autocomplete="email">
+                    </div>
+                    <div class="mb-4">
+                        <label for="password" class="form-label small fw-semibold">Password</label>
+                        <input type="password" id="password" name="password" class="form-control"
+                               placeholder="••••••••" required autocomplete="current-password">
+                    </div>
+                    <button type="submit" class="btn btn-success w-100">
+                        <i class="fas fa-sign-in-alt me-1"></i>Accedi
+                    </button>
+                </form>
+
+            </div>
+            <div class="card-footer bg-transparent text-center py-3">
+                <small class="text-muted">
+                    Non hai un account?
+                    <a href="/registrazione.php" class="text-success fw-semibold">Registrati</a>
+                </small>
+            </div>
         </div>
     </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

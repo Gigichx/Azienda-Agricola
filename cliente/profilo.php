@@ -1,7 +1,6 @@
 <?php
 /**
  * PROFILO.PHP - Cliente
- * Azienda Agricola
  */
 
 require_once '../includes/db.php';
@@ -9,155 +8,155 @@ require_once '../includes/auth.php';
 require_once '../includes/functions.php';
 
 requireCliente();
-
 $pageTitle = 'Il Mio Profilo';
 
-// Ottieni dati cliente
-$sqlCliente = "SELECT c.*, u.email, u.dataRegistrazione
-               FROM CLIENTE c
-               INNER JOIN UTENTE u ON c.idUtente = u.idUtente
-               WHERE u.idUtente = ?";
-$cliente = fetchOne($pdo, $sqlCliente, [getUserId()]);
+$cliente = fetchOne($pdo,
+    "SELECT c.*, u.email, u.dataRegistrazione
+     FROM CLIENTE c
+     INNER JOIN UTENTE u ON c.idUtente = u.idUtente
+     WHERE u.idUtente = ?",
+    [getUserId()]
+);
 
-// Ottieni storico ordini
-$sqlOrdini = "SELECT v.*, l.nome as nomeLuogo,
-              (SELECT COUNT(*) FROM DETTAGLIO_VENDITA WHERE idVendita = v.idVendita) as numeroArticoli
-              FROM VENDITA v
-              INNER JOIN LUOGO l ON v.idLuogo = l.idLuogo
-              WHERE v.idCliente = ?
-              ORDER BY v.dataVendita DESC
-              LIMIT 20";
+$ordini = fetchAll($pdo,
+    "SELECT v.*, l.nome as nomeLuogo,
+            (SELECT COUNT(*) FROM DETTAGLIO_VENDITA WHERE idVendita = v.idVendita) as numeroArticoli
+     FROM VENDITA v
+     INNER JOIN LUOGO l ON v.idLuogo = l.idLuogo
+     WHERE v.idCliente = ?
+     ORDER BY v.dataVendita DESC
+     LIMIT 20",
+    [$cliente['idCliente']]
+);
 
-$ordini = fetchAll($pdo, $sqlOrdini, [$cliente['idCliente']]);
-
-// Calcola statistiche
-$sqlStats = "SELECT 
-             COUNT(*) as totaleOrdini,
-             SUM(totalePagato) as totaleSpeso
-             FROM VENDITA
-             WHERE idCliente = ?";
-$stats = fetchOne($pdo, $sqlStats, [$cliente['idCliente']]);
+$stats = fetchOne($pdo,
+    "SELECT COUNT(*) as totaleOrdini, COALESCE(SUM(totalePagato),0) as totaleSpeso
+     FROM VENDITA WHERE idCliente = ?",
+    [$cliente['idCliente']]
+);
 
 include '../includes/header_cliente.php';
 ?>
 
-<div class="profilo-container">
-    <!-- Header Profilo -->
-    <div class="profilo-header">
-        <div class="profilo-info">
-            <div class="profilo-avatar">
+<!-- Header profilo -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <div class="d-flex align-items-center gap-3 mb-4">
+            <!-- Avatar -->
+            <div class="rounded-circle bg-success bg-opacity-10 text-success d-flex align-items-center justify-content-center fw-bold fs-4"
+                 style="width:56px;height:56px;flex-shrink:0">
                 <?php echo strtoupper(substr($cliente['nome'], 0, 1)); ?>
             </div>
-            <div class="profilo-details">
-                <h2><?php echo htmlspecialchars($cliente['nome']); ?></h2>
-                <p class="profilo-email"><?php echo htmlspecialchars($cliente['email']); ?></p>
-                <?php if ($cliente['telefono']): ?>
-                    <p class="profilo-email">📞 <?php echo htmlspecialchars($cliente['telefono']); ?></p>
+            <div>
+                <h5 class="mb-0 fw-semibold"><?php echo htmlspecialchars($cliente['nome']); ?></h5>
+                <?php if ($cliente['email']): ?>
+                    <div class="text-muted small">
+                        <i class="fas fa-envelope me-1"></i><?php echo htmlspecialchars($cliente['email']); ?>
+                    </div>
                 <?php endif; ?>
-                <p class="profilo-since">Cliente dal <?php echo formatDate($cliente['dataRegistrazione']); ?></p>
-            </div>
-        </div>
-        
-        <!-- Statistiche Quick -->
-        <div class="row" style="margin-top: 2rem;">
-            <div class="col">
-                <div class="stat-quick">
-                    <div class="stat-icon" style="background-color: var(--color-primary);">📦</div>
-                    <div class="stat-content">
-                        <div class="stat-label">Ordini Totali</div>
-                        <div class="stat-value"><?php echo $stats['totaleOrdini']; ?></div>
+                <?php if ($cliente['telefono']): ?>
+                    <div class="text-muted small">
+                        <i class="fas fa-phone me-1"></i><?php echo htmlspecialchars($cliente['telefono']); ?>
                     </div>
-                </div>
-            </div>
-            <div class="col">
-                <div class="stat-quick">
-                    <div class="stat-icon" style="background-color: var(--color-accent);">💰</div>
-                    <div class="stat-content">
-                        <div class="stat-label">Totale Speso</div>
-                        <div class="stat-value"><?php echo formatPrice($stats['totaleSpeso'] ?? 0); ?></div>
-                    </div>
+                <?php endif; ?>
+                <div class="text-muted small">
+                    <i class="fas fa-calendar me-1"></i>Cliente dal <?php echo formatDate($cliente['dataRegistrazione']); ?>
                 </div>
             </div>
         </div>
-    </div>
-    
-    <!-- Storico Ordini -->
-    <div class="section">
-        <div class="section-header">
-            <h2 class="section-title">I Miei Ordini</h2>
+
+        <!-- KPI quick -->
+        <div class="row g-3">
+            <div class="col-6 col-sm-4">
+                <div class="border rounded p-3 text-center">
+                    <div class="fs-4 fw-bold text-success"><?php echo $stats['totaleOrdini']; ?></div>
+                    <div class="text-muted small">Ordini totali</div>
+                </div>
+            </div>
+            <div class="col-6 col-sm-4">
+                <div class="border rounded p-3 text-center">
+                    <div class="fs-5 fw-bold text-success"><?php echo formatPrice($stats['totaleSpeso']); ?></div>
+                    <div class="text-muted small">Totale speso</div>
+                </div>
+            </div>
         </div>
-        
-        <?php if (empty($ordini)): ?>
-            <div class="empty-state">
-                <div class="empty-state-icon">📦</div>
-                <h3 class="empty-state-title">Nessun ordine ancora</h3>
-                <p class="empty-state-message">Inizia a fare acquisti dal nostro catalogo!</p>
-                <a href="/cliente/catalogo.php" class="btn btn-primary">Vai al Catalogo</a>
-            </div>
-        <?php else: ?>
-            <div class="ordini-lista">
-                <?php foreach ($ordini as $ordine): ?>
-                    <div class="ordine-card">
-                        <div class="ordine-header">
-                            <div>
-                                <div class="ordine-numero">Ordine #<?php echo $ordine['idVendita']; ?></div>
-                                <div class="ordine-data"><?php echo formatDate($ordine['dataVendita'], true); ?></div>
-                            </div>
-                            <div>
-                                <span class="badge badge-success">Completato</span>
-                            </div>
-                        </div>
-                        
-                        <?php
-                        // Ottieni dettagli ordine
-                        $sqlDettagli = "SELECT dv.*, p.nome as nomeProdotto
-                                       FROM DETTAGLIO_VENDITA dv
-                                       INNER JOIN PRODOTTO p ON dv.idProdotto = p.idProdotto
-                                       WHERE dv.idVendita = ?";
-                        $dettagli = fetchAll($pdo, $sqlDettagli, [$ordine['idVendita']]);
-                        ?>
-                        
-                        <ul class="ordine-items">
-                            <?php foreach ($dettagli as $det): ?>
-                                <li class="ordine-item">
-                                    <strong><?php echo htmlspecialchars($det['nomeProdotto']); ?></strong>
-                                    <?php if ($det['quantita']): ?>
-                                        - Quantità: <?php echo $det['quantita']; ?>
-                                    <?php endif; ?>
-                                    <?php if ($det['pesoVenduto']): ?>
-                                        - Peso: <?php echo formatWeight($det['pesoVenduto'], 'kg'); ?>
-                                    <?php endif; ?>
-                                    - <?php echo formatPrice($det['prezzoUnitario']); ?>
-                                    <?php if ($det['omaggio']): ?>
-                                        <span class="badge badge-warning">Omaggio</span>
-                                    <?php endif; ?>
-                                </li>
-                            <?php endforeach; ?>
-                        </ul>
-                        
-                        <?php if ($ordine['note']): ?>
-                            <div class="info-card" style="margin-bottom: 1rem;">
-                                <div class="info-card-content">
-                                    <p><strong>Note:</strong> <?php echo htmlspecialchars($ordine['note']); ?></p>
-                                </div>
-                            </div>
-                        <?php endif; ?>
-                        
-                        <div class="ordine-footer">
-                            <div>
-                                <small style="color: var(--color-text-muted);">
-                                    Luogo: <?php echo htmlspecialchars($ordine['nomeLuogo']); ?>
-                                </small>
-                            </div>
-                            <div class="ordine-totale">
-                                <?php echo formatPrice($ordine['totalePagato']); ?>
-                            </div>
-                        </div>
-                    </div>
-                <?php endforeach; ?>
-            </div>
-        <?php endif; ?>
     </div>
 </div>
 
-<?php include '../includes/footer.php'; ?>
+<!-- Storico ordini -->
+<h5 class="mb-3">I miei ordini</h5>
+
+<?php if (empty($ordini)): ?>
+    <div class="text-center py-5 text-muted">
+        <i class="fas fa-box-open fa-3x mb-3"></i>
+        <p class="mb-3">Nessun ordine ancora</p>
+        <a href="/cliente/catalogo.php" class="btn btn-success btn-sm">
+            <i class="fas fa-store me-1"></i>Vai al catalogo
+        </a>
+    </div>
+<?php else: ?>
+    <div class="d-flex flex-column gap-3">
+        <?php foreach ($ordini as $ordine): ?>
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <div class="fw-semibold">Ordine #<?php echo $ordine['idVendita']; ?></div>
+                        <small class="text-muted">
+                            <i class="fas fa-calendar me-1"></i><?php echo formatDate($ordine['dataVendita'], true); ?>
+                            &nbsp;&nbsp;<i class="fas fa-map-marker-alt me-1"></i><?php echo htmlspecialchars($ordine['nomeLuogo']); ?>
+                        </small>
+                    </div>
+                    <span class="badge bg-success-subtle text-success border border-success-subtle">
+                        <i class="fas fa-check me-1"></i>Completato
+                    </span>
+                </div>
+
+                <?php
+                $dettagli = fetchAll($pdo,
+                    "SELECT dv.*, p.nome as nomeProdotto
+                     FROM DETTAGLIO_VENDITA dv
+                     INNER JOIN PRODOTTO p ON dv.idProdotto = p.idProdotto
+                     WHERE dv.idVendita = ?",
+                    [$ordine['idVendita']]
+                );
+                ?>
+
+                <ul class="list-unstyled mb-3">
+                    <?php foreach ($dettagli as $det): ?>
+                    <li class="d-flex justify-content-between py-1 border-bottom small">
+                        <span>
+                            <?php echo htmlspecialchars($det['nomeProdotto']); ?>
+                            <?php if ($det['quantita']): ?>
+                                <span class="text-muted">&times; <?php echo $det['quantita']; ?></span>
+                            <?php endif; ?>
+                            <?php if ($det['pesoVenduto']): ?>
+                                <span class="text-muted">&mdash; <?php echo formatWeight($det['pesoVenduto'], 'kg'); ?></span>
+                            <?php endif; ?>
+                            <?php if ($det['omaggio']): ?>
+                                <span class="badge bg-success-subtle text-success border border-success-subtle ms-1" style="font-size:.65rem">Omaggio</span>
+                            <?php endif; ?>
+                        </span>
+                        <span class="text-muted">
+                            <?php echo $det['omaggio'] ? 'Gratuito' : formatPrice($det['prezzoUnitario']); ?>
+                        </span>
+                    </li>
+                    <?php endforeach; ?>
+                </ul>
+
+                <?php if ($ordine['note']): ?>
+                <div class="mb-2 small text-muted">
+                    <i class="fas fa-sticky-note me-1"></i><?php echo htmlspecialchars($ordine['note']); ?>
+                </div>
+                <?php endif; ?>
+
+                <div class="d-flex justify-content-end">
+                    <span class="fw-bold text-success"><?php echo formatPrice($ordine['totalePagato']); ?></span>
+                </div>
+            </div>
+        </div>
+        <?php endforeach; ?>
+    </div>
+<?php endif; ?>
+
+<?php include '../includes/footer_cliente.php'; ?>

@@ -1,84 +1,84 @@
 <?php
 /**
- * Connessione al Database - PDO
- * Azienda Agricola
+ * Connessione al Database - MySQLi procedurale
  */
 
-// Configurazione database
-$host     = 'db';           // nome del servizio nel docker-compose
-$dbname = 'azienda_agricola';
-$user     = 'myuser';       // MYSQL_USER
-$password = 'mypassword';   // MYSQL_PASSWORD
+$host     = 'db';
+$dbname   = 'azienda_agricola';
+$user     = 'myuser';
+$password = 'mypassword';
 
-try {
-    $pdo = new PDO(
-        "mysql:host=$host;dbname=$dbname;charset=utf8mb4",
-        $user,
-        $password,
-        [
-            PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
-            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-            PDO::ATTR_EMULATE_PREPARES   => false,
-        ]
-    );
-} catch (PDOException $e) {
-    die("Errore di connessione al database. Riprova più tardi.");
+// Connessione
+$conn = mysqli_connect($host, $user, $password, $dbname);
+
+// Controllo connessione
+if (!$conn) {
+    die("Errore di connessione: " . mysqli_connect_error());
 }
 
+// Imposta charset UTF-8
+mysqli_set_charset($conn, 'utf8mb4');
+
+
 /**
- * Funzione helper per eseguire query preparate
- * 
- * @param PDO $pdo Connessione database
- * @param string $sql Query SQL
- * @param array $params Parametri per prepared statement
- * @return PDOStatement
+ * Esegue una query con prepared statement
+ * Restituisce il risultato (mysqli_result o true)
  */
-function executeQuery($pdo, $sql, $params = []) {
-    try {
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute($params);
-        return $stmt;
-    } catch (PDOException $e) {
-        error_log("Errore query: " . $e->getMessage());
-        throw $e;
+function executeQuery($conn, $sql, $params = []) {
+    $stmt = mysqli_prepare($conn, $sql);
+    
+    if (!$stmt) {
+        error_log("Errore prepare: " . mysqli_error($conn));
+        throw new Exception("Errore nella query");
     }
+    
+    // Bind parametri se presenti
+    if (!empty($params)) {
+        // Determina i tipi automaticamente
+        $types = '';
+        foreach ($params as $param) {
+            if (is_int($param))    $types .= 'i';
+            elseif (is_float($param)) $types .= 'd';
+            else                   $types .= 's';
+        }
+        mysqli_stmt_bind_param($stmt, $types, ...$params);
+    }
+    
+    mysqli_stmt_execute($stmt);
+    return $stmt;
 }
 
-/**
- * Funzione per ottenere un singolo record
- * 
- * @param PDO $pdo Connessione database
- * @param string $sql Query SQL
- * @param array $params Parametri
- * @return array|false
- */
-function fetchOne($pdo, $sql, $params = []) {
-    $stmt = executeQuery($pdo, $sql, $params);
-    return $stmt->fetch();
-}
 
 /**
- * Funzione per ottenere tutti i record
- * 
- * @param PDO $pdo Connessione database
- * @param string $sql Query SQL
- * @param array $params Parametri
- * @return array
+ * Ritorna un singolo record come array associativo
  */
-function fetchAll($pdo, $sql, $params = []) {
-    $stmt = executeQuery($pdo, $sql, $params);
-    return $stmt->fetchAll();
+function fetchOne($conn, $sql, $params = []) {
+    $stmt  = executeQuery($conn, $sql, $params);
+    $result = mysqli_stmt_get_result($stmt);
+    $row   = mysqli_fetch_assoc($result);
+    mysqli_stmt_close($stmt);
+    return $row; // null se non trovato
 }
 
+
 /**
- * Funzione per inserire e ottenere l'ID generato
- * 
- * @param PDO $pdo Connessione database
- * @param string $sql Query SQL
- * @param array $params Parametri
- * @return string Last insert ID
+ * Ritorna tutti i record come array di array associativi
  */
-function insertAndGetId($pdo, $sql, $params = []) {
-    executeQuery($pdo, $sql, $params);
-    return $pdo->lastInsertId();
+function fetchAll($conn, $sql, $params = []) {
+    $stmt   = executeQuery($conn, $sql, $params);
+    $result = mysqli_stmt_get_result($stmt);
+    $rows   = mysqli_fetch_all($result, MYSQLI_ASSOC);
+    mysqli_stmt_close($stmt);
+    return $rows;
+}
+
+
+/**
+ * Esegue un INSERT e ritorna l'ID generato
+ */
+function insertAndGetId($conn, $sql, $params = []) {
+    $stmt = executeQuery($conn, $sql, $params);
+    $id   = mysqli_insert_id($conn);
+    mysqli_stmt_close($stmt);
+    return $id;
 }

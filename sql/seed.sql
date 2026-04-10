@@ -10,10 +10,17 @@ USE azienda_agricola;
 -- Password: "admin123" e "cliente123" (hash bcrypt)
 -- In produzione usare password_hash() di PHP
 
+-- Passwords: admin123 / cliente123 (bcrypt cost 10)
+-- Hash generati con password_hash() di PHP:
+--   admin123   => $2y$10$u5kPTMaKSEegL7JfF3k5.eCqCNWX1mHFqmJajL/KG2tBbCVNSd1iW
+--   cliente123 => $2y$10$3i1sBr5QQxLBILhMOJVFeeI9h5FRnVFdIKGgHCRIZNIXVDQ7BUrJy
 INSERT INTO UTENTE (nome, cognome, email, password, ruolo) VALUES
-('Mario', 'Rossi', 'admin@azienda.it', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin'),
-('Giulia', 'Bianchi', 'giulia@email.it', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'cliente'),
-('Luca', 'Verdi', 'luca@email.it', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'cliente');
+('Mario', 'Rossi', 'admin@azienda.it',
+    '$2y$10$u5kPTMaKSEegL7JfF3k5.eCqCNWX1mHFqmJajL/KG2tBbCVNSd1iW', 'admin'),
+('Giulia', 'Bianchi', 'giulia@email.it',
+    '$2y$10$3i1sBr5QQxLBILhMOJVFeeI9h5FRnVFdIKGgHCRIZNIXVDQ7BUrJy', 'cliente'),
+('Luca', 'Verdi', 'luca@email.it',
+    '$2y$10$3i1sBr5QQxLBILhMOJVFeeI9h5FRnVFdIKGgHCRIZNIXVDQ7BUrJy', 'cliente');
 
 -- ============================================
 -- CLIENTI

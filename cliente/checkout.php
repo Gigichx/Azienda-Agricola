@@ -1,7 +1,6 @@
 <?php
 /**
  * CHECKOUT.PHP - Cliente
- * Azienda Agricola
  */
 
 require_once '../includes/db.php';
@@ -9,151 +8,158 @@ require_once '../includes/auth.php';
 require_once '../includes/functions.php';
 
 requireCliente();
+$pageTitle = 'Conferma Ordine';
 
-$pageTitle = 'Checkout';
-
-// Verifica carrello non vuoto
 if (!isset($_SESSION['carrello']) || empty($_SESSION['carrello'])) {
     redirectWithMessage('/cliente/catalogo.php', 'Il carrello è vuoto', 'warning');
 }
 
 $carrello = $_SESSION['carrello'];
-$totale = 0;
+$totale   = 0;
+$items    = [];
 
-// Ottieni dettagli prodotti
-$items = [];
 foreach ($carrello as $item) {
     $sql = "SELECT p.nome, conf.pesoNetto, conf.prezzo, conf.giacenzaAttuale, p.unitaMisura
             FROM CONFEZIONAMENTO conf
             INNER JOIN PRODOTTO p ON conf.idProdotto = p.idProdotto
             WHERE conf.idConfezionamento = ?";
-    
-    $dettagli = fetchOne($pdo, $sql, [$item['idConfezionamento']]);
-    
-    if ($dettagli) {
-        // Verifica giacenza
-        if ($dettagli['giacenzaAttuale'] < $item['quantita']) {
-            redirectWithMessage('/cliente/carrello.php', 
-                'Giacenza insufficiente per ' . $dettagli['nome'], 'error');
+    $det = fetchOne($pdo, $sql, [$item['idConfezionamento']]);
+
+    if ($det) {
+        if ($det['giacenzaAttuale'] < $item['quantita']) {
+            redirectWithMessage('/cliente/carrello.php',
+                'Giacenza insufficiente per ' . $det['nome'], 'error');
         }
-        
-        $subtotale = $dettagli['prezzo'] * $item['quantita'];
-        $totale += $subtotale;
-        
-        $items[] = array_merge($item, [
-            'nome' => $dettagli['nome'],
-            'pesoNetto' => $dettagli['pesoNetto'],
-            'unitaMisura' => $dettagli['unitaMisura'],
-            'prezzo' => $dettagli['prezzo'],
-            'subtotale' => $subtotale
+        $subtotale = $det['prezzo'] * $item['quantita'];
+        $totale   += $subtotale;
+        $items[]   = array_merge($item, [
+            'nome'       => $det['nome'],
+            'pesoNetto'  => $det['pesoNetto'],
+            'unitaMisura'=> $det['unitaMisura'],
+            'prezzo'     => $det['prezzo'],
+            'subtotale'  => $subtotale,
         ]);
     }
 }
 
-// Ottieni dati cliente
-$sqlCliente = "SELECT c.* FROM CLIENTE c
-               INNER JOIN UTENTE u ON c.idUtente = u.idUtente
-               WHERE u.idUtente = ?";
-$cliente = fetchOne($pdo, $sqlCliente, [getUserId()]);
+// Dati cliente
+$cliente = fetchOne($pdo,
+    "SELECT c.* FROM CLIENTE c INNER JOIN UTENTE u ON c.idUtente = u.idUtente WHERE u.idUtente = ?",
+    [getUserId()]
+);
 
 include '../includes/header_cliente.php';
 ?>
 
-<div class="checkout-container">
-    <h1 class="page-title">Conferma Ordine</h1>
-    
-    <!-- Step 1: Riepilogo -->
-    <div class="checkout-step">
-        <h2 class="checkout-step-title">
-            <span class="step-number">1</span>
-            Riepilogo Prodotti
-        </h2>
-        
-        <div class="checkout-riepilogo">
-            <?php foreach ($items as $item): ?>
-                <div class="riepilogo-item">
-                    <span>
-                        <strong><?php echo htmlspecialchars($item['nome']); ?></strong><br>
-                        <small><?php echo formatWeight($item['pesoNetto'], $item['unitaMisura']); ?> × <?php echo $item['quantita']; ?></small>
-                    </span>
-                    <span><?php echo formatPrice($item['subtotale']); ?></span>
+<div class="row justify-content-center">
+    <div class="col-lg-8 col-xl-7">
+
+        <h2 class="h4 mb-4">Conferma ordine</h2>
+
+        <!-- Step 1 – Prodotti -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-transparent border-0 pb-0">
+                <h6 class="fw-semibold mb-0">
+                    <span class="badge bg-success rounded-circle me-2">1</span>Prodotti nel carrello
+                </h6>
+            </div>
+            <div class="card-body">
+                <?php foreach ($items as $item): ?>
+                <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                    <div>
+                        <div class="fw-semibold"><?php echo htmlspecialchars($item['nome']); ?></div>
+                        <small class="text-muted">
+                            <?php echo formatWeight($item['pesoNetto'], $item['unitaMisura']); ?>/conf
+                            &times; <?php echo $item['quantita']; ?>
+                        </small>
+                    </div>
+                    <span class="fw-semibold"><?php echo formatPrice($item['subtotale']); ?></span>
                 </div>
-            <?php endforeach; ?>
-            
-            <div class="riepilogo-divider"></div>
-            
-            <div class="riepilogo-item">
-                <strong>Totale Ordine</strong>
-                <strong style="font-size: 1.5rem; color: var(--color-accent);">
-                    <?php echo formatPrice($totale); ?>
-                </strong>
+                <?php endforeach; ?>
+
+                <div class="d-flex justify-content-between align-items-center pt-3">
+                    <span class="fw-semibold">Totale ordine</span>
+                    <span class="fw-bold fs-5 text-success"><?php echo formatPrice($totale); ?></span>
+                </div>
             </div>
         </div>
-    </div>
-    
-    <!-- Step 2: Dati Cliente -->
-    <div class="checkout-step">
-        <h2 class="checkout-step-title">
-            <span class="step-number">2</span>
-            I Tuoi Dati
-        </h2>
-        
-        <div class="info-card">
-            <div class="info-card-content">
-                <p><strong>Nome:</strong> <?php echo htmlspecialchars($cliente['nome']); ?></p>
-                <p><strong>Email:</strong> <?php echo htmlspecialchars($cliente['email']); ?></p>
-                <?php if ($cliente['telefono']): ?>
-                    <p><strong>Telefono:</strong> <?php echo htmlspecialchars($cliente['telefono']); ?></p>
-                <?php endif; ?>
+
+        <!-- Step 2 – Dati cliente -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-transparent border-0 pb-0">
+                <h6 class="fw-semibold mb-0">
+                    <span class="badge bg-success rounded-circle me-2">2</span>I tuoi dati
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="row g-2">
+                    <div class="col-sm-6">
+                        <div class="small text-muted">Nome</div>
+                        <div class="fw-semibold"><?php echo htmlspecialchars($cliente['nome']); ?></div>
+                    </div>
+                    <?php if ($cliente['email']): ?>
+                    <div class="col-sm-6">
+                        <div class="small text-muted">Email</div>
+                        <div><?php echo htmlspecialchars($cliente['email']); ?></div>
+                    </div>
+                    <?php endif; ?>
+                    <?php if ($cliente['telefono']): ?>
+                    <div class="col-sm-6">
+                        <div class="small text-muted">Telefono</div>
+                        <div><?php echo htmlspecialchars($cliente['telefono']); ?></div>
+                    </div>
+                    <?php endif; ?>
+                </div>
             </div>
         </div>
-    </div>
-    
-    <!-- Step 3: Note (Opzionale) -->
-    <div class="checkout-step">
-        <h2 class="checkout-step-title">
-            <span class="step-number">3</span>
-            Note Ordine (Opzionale)
-        </h2>
-        
-        <form method="POST" action="/api/ordini.php" id="checkoutForm">
-            <input type="hidden" name="action" value="create">
-            
-            <div class="form-group">
-                <label for="note" class="form-label">Note o richieste particolari</label>
-                <textarea name="note" id="note" class="checkout-note form-textarea" 
-                          placeholder="Inserisci eventuali note per l'ordine..."></textarea>
+
+        <!-- Step 3 – Note e conferma -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-transparent border-0 pb-0">
+                <h6 class="fw-semibold mb-0">
+                    <span class="badge bg-success rounded-circle me-2">3</span>Note e conferma
+                </h6>
             </div>
-            
-            <!-- Conferma -->
-            <div style="margin-top: 2rem; padding-top: 2rem; border-top: 2px solid var(--color-border-light);">
-                <div class="alert alert-info" style="margin-bottom: 1.5rem;">
-                    <div class="alert-content">
-                        <p class="alert-title">Conferma Ordine</p>
-                        <p>Procedendo confermi l'ordine per un totale di <strong><?php echo formatPrice($totale); ?></strong>.</p>
-                        <p>Riceverai una conferma via email all'indirizzo <strong><?php echo htmlspecialchars($cliente['email']); ?></strong>.</p>
+            <form method="POST" action="/api/ordini.php" id="checkoutForm">
+                <div class="card-body">
+                    <input type="hidden" name="action" value="create">
+
+                    <div class="mb-3">
+                        <label for="note" class="form-label small">Note o richieste particolari (opzionale)</label>
+                        <textarea name="note" id="note" class="form-control" rows="2"
+                                  placeholder="Es: preferisco la consegna al mattino..."></textarea>
+                    </div>
+
+                    <div class="alert alert-light border mb-0 py-2">
+                        <small class="text-muted">
+                            <i class="fas fa-info-circle me-1 text-success"></i>
+                            Confermando accetti l'ordine per un totale di
+                            <strong><?php echo formatPrice($totale); ?></strong>.
+                            Riceverai una conferma via email a
+                            <strong><?php echo htmlspecialchars($cliente['email'] ?? '—'); ?></strong>.
+                        </small>
                     </div>
                 </div>
-                
-                <div class="btn-group-block">
-                    <button type="submit" class="btn btn-success btn-lg" style="flex: 1;">
-                        Conferma Ordine
+                <div class="card-footer bg-transparent d-flex gap-2">
+                    <button type="submit" class="btn btn-success flex-fill" id="btnConferma">
+                        <i class="fas fa-check me-1"></i>Conferma ordine
                     </button>
-                    <a href="/cliente/carrello.php" class="btn btn-outline btn-lg">
-                        Torna al Carrello
+                    <a href="/cliente/carrello.php" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-1"></i>Carrello
                     </a>
                 </div>
-            </div>
-        </form>
+            </form>
+        </div>
+
     </div>
 </div>
 
 <script>
-document.getElementById('checkoutForm').addEventListener('submit', function(e) {
-    const btn = this.querySelector('button[type="submit"]');
+document.getElementById('checkoutForm').addEventListener('submit', function () {
+    const btn = document.getElementById('btnConferma');
     btn.disabled = true;
-    btn.innerHTML = '<span class="spinner spinner-inline"></span> Elaborazione...';
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Elaborazione...';
 });
 </script>
 
-<?php include '../includes/footer.php'; ?>
+<?php include '../includes/footer_cliente.php'; ?>
