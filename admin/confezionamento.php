@@ -1,7 +1,6 @@
 <?php
 /**
- * CONFEZIONAMENTO - Admin
- * Azienda Agricola
+ * CONFEZIONAMENTO - Admin — FIXED
  */
 
 require_once '../includes/db.php';
@@ -22,7 +21,6 @@ $confezionamenti = fetchAll($conn,
      LIMIT 100"
 );
 
-// Dati per il form di creazione
 $prodotti  = fetchAll($conn, "SELECT * FROM PRODOTTO ORDER BY nome");
 $luoghi    = fetchAll($conn, "SELECT * FROM LUOGO ORDER BY nome");
 $riserve   = fetchAll($conn,
@@ -49,7 +47,7 @@ include '../includes/header_admin.php';
         Confezionamenti
     </h1>
     <div class="admin-page-actions">
-        <button class="btn btn-primary" onclick="openModal('modalNuovoConf')">
+        <button class="btn btn-success btn-sm" onclick="openModal('modalNuovoConf')">
             <i class="fas fa-plus me-1"></i> Nuovo Confezionamento
         </button>
     </div>
@@ -91,9 +89,9 @@ include '../includes/header_admin.php';
                 <td class="text-end fw-semibold text-success"><?php echo formatPrice($c['prezzo']); ?></td>
                 <td class="text-center">
                     <?php if ($c['giacenzaAttuale'] > 0): ?>
-                        <span class="badge badge-success"><?php echo $c['giacenzaAttuale']; ?></span>
+                        <span class="ag-badge-success"><?php echo $c['giacenzaAttuale']; ?></span>
                     <?php else: ?>
-                        <span class="badge badge-error">0</span>
+                        <span class="ag-badge-error">0</span>
                     <?php endif; ?>
                 </td>
                 <td class="text-center pe-3">
@@ -112,116 +110,108 @@ include '../includes/header_admin.php';
     </table>
 </div>
 
-<!-- ===== MODAL NUOVO CONFEZIONAMENTO ===== -->
+<!-- ===== MODAL NUOVO CONFEZIONAMENTO — usa .ag-modal ===== -->
 <div class="modal-overlay" id="modalNuovoConf">
-    <div class="modal modal-lg">
-        <div class="modal-header">
-            <h3 class="modal-title">
+    <div class="ag-modal ag-modal-lg">
+        <div class="ag-modal-header">
+            <h3 class="ag-modal-title">
                 <i class="fas fa-boxes-stacked me-2 text-success" style="font-size:.85rem"></i>
                 Nuovo Confezionamento
             </h3>
-            <button class="modal-close" onclick="closeModal('modalNuovoConf')">&times;</button>
+            <button class="ag-modal-close" onclick="closeModal('modalNuovoConf')">&times;</button>
         </div>
         <form method="POST" action="/api/confezionamento.php">
-            <div class="modal-body">
+            <div class="ag-modal-body">
                 <input type="hidden" name="action" value="create">
 
-                <div class="form-row">
-                    <div class="form-group">
-                        <label class="form-label required">Prodotto</label>
-                        <select name="idProdotto" id="confIdProdotto" class="form-input" required
+                <div class="ag-form-row">
+                    <div class="ag-form-group">
+                        <label class="ag-form-label required">Prodotto</label>
+                        <select name="idProdotto" id="confIdProdotto" class="form-select form-select-sm" required
                                 onchange="aggiornaUnitaConf(this)">
                             <option value="">-- Seleziona prodotto --</option>
                             <?php foreach ($prodotti as $p): ?>
                                 <option value="<?php echo $p['idProdotto']; ?>"
                                         data-unita="<?php echo htmlspecialchars($p['unitaMisura']); ?>">
-                                    <?php echo htmlspecialchars($p['nome']); ?>
-                                    (<?php echo $p['unitaMisura']; ?>)
+                                    <?php echo htmlspecialchars($p['nome']); ?> (<?php echo $p['unitaMisura']; ?>)
                                 </option>
                             <?php endforeach; ?>
                         </select>
                     </div>
-
-                    <div class="form-group">
-                        <label class="form-label required">Luogo</label>
-                        <select name="idLuogo" class="form-input" required>
+                    <div class="ag-form-group">
+                        <label class="ag-form-label required">Luogo</label>
+                        <select name="idLuogo" class="form-select form-select-sm" required>
                             <option value="">-- Seleziona luogo --</option>
                             <?php foreach ($luoghi as $lu): ?>
                                 <option value="<?php echo $lu['idLuogo']; ?>">
-                                    <?php echo htmlspecialchars($lu['nome']); ?>
-                                    (<?php echo $lu['tipo']; ?>)
+                                    <?php echo htmlspecialchars($lu['nome']); ?> (<?php echo $lu['tipo']; ?>)
                                 </option>
                             <?php endforeach; ?>
                         </select>
                     </div>
                 </div>
 
-                <div class="form-row">
-                    <div class="form-group">
-                        <label class="form-label required">Data Produzione</label>
-                        <input type="date" name="dataProduzione" class="form-input"
+                <div class="ag-form-row">
+                    <div class="ag-form-group">
+                        <label class="ag-form-label required">Data Produzione</label>
+                        <input type="date" name="dataProduzione" class="ag-form-input"
                                value="<?php echo date('Y-m-d'); ?>" required>
                     </div>
-
-                    <div class="form-group">
-                        <label class="form-label required">Data Confezionamento</label>
-                        <input type="date" name="dataConfezionamento" class="form-input"
+                    <div class="ag-form-group">
+                        <label class="ag-form-label required">Data Confezionamento</label>
+                        <input type="date" name="dataConfezionamento" class="ag-form-input"
                                value="<?php echo date('Y-m-d'); ?>" required>
                     </div>
                 </div>
 
-                <div class="form-row">
-                    <div class="form-group">
-                        <label class="form-label required">N° Confezioni</label>
-                        <input type="number" name="numeroConfezioni" class="form-input"
+                <div class="ag-form-row">
+                    <div class="ag-form-group">
+                        <label class="ag-form-label required">N° Confezioni</label>
+                        <input type="number" name="numeroConfezioni" class="ag-form-input"
                                min="1" step="1" placeholder="es. 50" required>
                     </div>
-
-                    <div class="form-group">
-                        <label class="form-label required">
+                    <div class="ag-form-group">
+                        <label class="ag-form-label required">
                             Peso Netto / conf.
                             <span class="text-muted" id="confUnitaLabel" style="font-weight:400">(kg)</span>
                         </label>
-                        <input type="number" name="pesoNetto" class="form-input"
+                        <input type="number" name="pesoNetto" class="ag-form-input"
                                step="0.001" min="0.001" placeholder="es. 0.50" required>
                     </div>
                 </div>
 
-                <div class="form-group">
-                    <label class="form-label required">Prezzo di Vendita (€/conf.)</label>
-                    <div class="input-group">
-                        <input type="number" name="prezzo" class="form-input"
+                <div class="ag-form-group">
+                    <label class="ag-form-label required">Prezzo di Vendita (€/conf.)</label>
+                    <div class="ag-input-group">
+                        <input type="number" name="prezzo" class="ag-form-input"
                                step="0.01" min="0.01" placeholder="es. 3.50" required>
-                        <span class="input-group-append">€</span>
+                        <span class="ag-input-group-append">€</span>
                     </div>
                 </div>
 
-                <!-- Collegamento opzionale a Riserva -->
-                <div class="form-group">
-                    <label class="form-label">
+                <div class="ag-form-group">
+                    <label class="ag-form-label">
                         Scala da Riserva
                         <span class="text-muted" style="font-weight:400">(opzionale)</span>
                     </label>
-                    <select name="idRiserva" id="confRiservaSelect" class="form-input">
+                    <select name="idRiserva" id="confRiservaSelect" class="form-select form-select-sm">
                         <option value="">-- Nessuna (confezionamento diretto) --</option>
                         <?php foreach ($riserve as $r): ?>
-                            <option value="<?php echo $r['idRiserva']; ?>"
-                                    data-prodotto="<?php echo $r['nomeProdotto']; ?>">
+                            <option value="<?php echo $r['idRiserva']; ?>">
                                 <?php echo htmlspecialchars($r['nomeProdotto']); ?> — <?php echo htmlspecialchars($r['nome']); ?>
                                 (<?php echo formatWeight($r['quantitaAttuale'], 'kg'); ?> disp.)
                             </option>
                         <?php endforeach; ?>
                     </select>
-                    <small class="form-text text-muted">Se selezionata, verrà scalata automaticamente la quantità dalla riserva.</small>
+                    <small class="text-muted">Se selezionata, la quantità viene scalata automaticamente dalla riserva.</small>
                 </div>
 
-                <!-- Collegamento opzionale a Lavorazione -->
-                <div class="form-group">
-                    <label class="form-label">
+                <div class="ag-form-group">
+                    <label class="ag-form-label">
                         Lavorazione di Origine
                         <span class="text-muted" style="font-weight:400">(opzionale)</span>
                     </label>
-                    <select name="idLavorazione" class="form-input">
+                    <select name="idLavorazione" class="form-select form-select-sm">
                         <option value="">-- Nessuna --</option>
                         <?php foreach ($lavorazioni as $lav): ?>
                             <option value="<?php echo $lav['idLavorazione']; ?>">
@@ -233,14 +223,13 @@ include '../includes/header_admin.php';
                         <?php endforeach; ?>
                     </select>
                 </div>
-
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-light" onclick="closeModal('modalNuovoConf')">
+            <div class="ag-modal-footer">
+                <button type="button" class="btn btn-outline-secondary btn-sm" onclick="closeModal('modalNuovoConf')">
                     Annulla
                 </button>
-                <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-save me-1"></i>Salva Confezionamento
+                <button type="submit" class="btn btn-success btn-sm">
+                    <i class="fas fa-save me-1"></i> Salva Confezionamento
                 </button>
             </div>
         </form>
@@ -256,7 +245,6 @@ function closeModal(id) {
         document.getElementById('confUnitaLabel').textContent = '(kg)';
     }
 }
-
 function aggiornaUnitaConf(sel) {
     const opt   = sel.options[sel.selectedIndex];
     const unita = opt.dataset.unita || 'kg';

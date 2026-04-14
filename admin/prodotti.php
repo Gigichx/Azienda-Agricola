@@ -1,7 +1,7 @@
 <?php
 /**
  * GESTIONE PRODOTTI - Admin
- * Azienda Agricola
+ * Azienda Agricola — FIXED: classi modal e badge aggiornate
  */
 
 require_once '../includes/db.php';
@@ -12,7 +12,6 @@ requireAdmin();
 
 $pageTitle = 'Gestione Prodotti';
 
-// Tutti i prodotti con giacenza
 $sql = "SELECT p.*, c.nome as nomeCategoria,
         COALESCE(SUM(conf.giacenzaAttuale), 0) as giacenzaTotale
         FROM PRODOTTO p
@@ -22,7 +21,6 @@ $sql = "SELECT p.*, c.nome as nomeCategoria,
         ORDER BY p.nome";
 $prodotti = fetchAll($conn, $sql);
 
-// Categorie per il form
 $categorie = fetchAll($conn, "SELECT * FROM CATEGORIA ORDER BY nome");
 
 include '../includes/header_admin.php';
@@ -31,8 +29,8 @@ include '../includes/header_admin.php';
 <div class="admin-page-header">
     <h1 class="admin-page-title">Gestione Prodotti</h1>
     <div class="admin-page-actions">
-        <button class="btn btn-primary" onclick="openModal('modalNuovoProdotto')">
-            + Nuovo Prodotto
+        <button class="btn btn-success btn-sm" onclick="openModal('modalNuovoProdotto')">
+            <i class="fas fa-plus me-1"></i> Nuovo Prodotto
         </button>
     </div>
 </div>
@@ -40,19 +38,19 @@ include '../includes/header_admin.php';
 <div class="prodotti-container">
     <div class="prodotti-toolbar">
         <div class="prodotti-search">
-            <input type="text" id="searchProdotti" class="form-input" placeholder="Cerca prodotto...">
+            <input type="text" id="searchProdotti" class="form-control form-control-sm" placeholder="Cerca prodotto...">
         </div>
-        <span class="text-muted"><?php echo count($prodotti); ?> prodotti totali</span>
+        <span class="text-muted small"><?php echo count($prodotti); ?> prodotti totali</span>
     </div>
 
     <div class="table-container">
-        <table class="table table-striped">
+        <table class="table table-hover mb-0">
             <thead>
                 <tr>
                     <th>Prodotto</th>
                     <th>Categoria</th>
                     <th>Unità Misura</th>
-                    <th class="text-right">Prezzo Base</th>
+                    <th class="text-end">Prezzo Base</th>
                     <th class="text-center">Giacenza</th>
                     <th class="text-center">Azioni</th>
                 </tr>
@@ -70,25 +68,29 @@ include '../includes/header_admin.php';
                         </td>
                         <td><?php echo htmlspecialchars($p['nomeCategoria']); ?></td>
                         <td><?php echo htmlspecialchars($p['unitaMisura']); ?></td>
-                        <td class="text-right"><?php echo formatPrice($p['prezzoBase']); ?></td>
+                        <td class="text-end"><?php echo formatPrice($p['prezzoBase']); ?></td>
                         <td class="text-center">
                             <?php if ($p['giacenzaTotale'] > 0): ?>
-                                <span class="badge badge-success"><?php echo $p['giacenzaTotale']; ?></span>
+                                <span class="ag-badge-success"><?php echo $p['giacenzaTotale']; ?></span>
                             <?php else: ?>
-                                <span class="badge badge-error">0</span>
+                                <span class="ag-badge-error">0</span>
                             <?php endif; ?>
                         </td>
                         <td class="text-center">
-                            <div class="table-actions">
-                                <button class="action-btn btn-edit"
+                            <div class="table-actions justify-content-center">
+                                <button class="action-btn"
                                         onclick='editProdotto(<?php echo json_encode($p); ?>)'
-                                        title="Modifica">✏️</button>
+                                        title="Modifica">
+                                    <i class="fas fa-pen" style="font-size:.7rem"></i>
+                                </button>
                                 <form method="POST" action="/api/prodotti.php" style="display: inline;">
                                     <input type="hidden" name="action" value="delete">
                                     <input type="hidden" name="idProdotto" value="<?php echo $p['idProdotto']; ?>">
-                                    <button type="submit" class="action-btn btn-delete"
-                                            onclick="return confirm('Eliminare questo prodotto?')"
-                                            title="Elimina">🗑️</button>
+                                    <button type="submit" class="btn-danger-sm"
+                                            onclick="return confirm('Eliminare il prodotto \'<?php echo htmlspecialchars(addslashes($p['nome'])); ?>\'?')"
+                                            title="Elimina">
+                                        <i class="fas fa-trash-alt" style="font-size:.7rem"></i>
+                                    </button>
                                 </form>
                             </div>
                         </td>
@@ -99,27 +101,27 @@ include '../includes/header_admin.php';
     </div>
 </div>
 
-<!-- Modal Nuovo/Modifica Prodotto -->
+<!-- ===== MODAL NUOVO/MODIFICA PRODOTTO — usa .ag-modal ===== -->
 <div class="modal-overlay" id="modalNuovoProdotto">
-    <div class="modal">
-        <div class="modal-header">
-            <h3 class="modal-title" id="modalTitle">Nuovo Prodotto</h3>
-            <button class="modal-close" onclick="closeModal('modalNuovoProdotto')">&times;</button>
+    <div class="ag-modal">
+        <div class="ag-modal-header">
+            <h3 class="ag-modal-title" id="modalTitle">Nuovo Prodotto</h3>
+            <button class="ag-modal-close" onclick="closeModal('modalNuovoProdotto')">&times;</button>
         </div>
         <form method="POST" action="/api/prodotti.php">
-            <div class="modal-body">
+            <div class="ag-modal-body">
                 <input type="hidden" name="action" id="formAction" value="create">
                 <input type="hidden" name="idProdotto" id="formIdProdotto">
 
-                <div class="form-group">
-                    <label class="form-label required">Nome Prodotto</label>
-                    <input type="text" name="nome" id="formNome" class="form-input" required>
+                <div class="ag-form-group">
+                    <label class="ag-form-label required">Nome Prodotto</label>
+                    <input type="text" name="nome" id="formNome" class="ag-form-input" required>
                 </div>
 
-                <div class="form-row">
-                    <div class="form-group">
-                        <label class="form-label required">Categoria</label>
-                        <select name="idCategoria" id="formCategoria" class="form-select" required>
+                <div class="ag-form-row">
+                    <div class="ag-form-group">
+                        <label class="ag-form-label required">Categoria</label>
+                        <select name="idCategoria" id="formCategoria" class="form-select form-select-sm" required>
                             <option value="">-- Seleziona --</option>
                             <?php foreach ($categorie as $cat): ?>
                                 <option value="<?php echo $cat['idCategoria']; ?>">
@@ -128,10 +130,9 @@ include '../includes/header_admin.php';
                             <?php endforeach; ?>
                         </select>
                     </div>
-
-                    <div class="form-group">
-                        <label class="form-label required">Unità di Misura</label>
-                        <select name="unitaMisura" id="formUnita" class="form-select" required>
+                    <div class="ag-form-group">
+                        <label class="ag-form-label required">Unità di Misura</label>
+                        <select name="unitaMisura" id="formUnita" class="form-select form-select-sm" required>
                             <option value="">-- Seleziona --</option>
                             <option value="kg">Chilogrammo (kg)</option>
                             <option value="litro">Litro (L)</option>
@@ -141,28 +142,30 @@ include '../includes/header_admin.php';
                     </div>
                 </div>
 
-                <div class="form-group">
-                    <label class="form-label required">
+                <div class="ag-form-group">
+                    <label class="ag-form-label required">
                         Prezzo Base
                         <span id="prezzoPer" class="text-muted" style="font-weight:400; font-size:.78rem"></span>
                     </label>
-                    <div class="input-group">
-                        <input type="number" name="prezzoBase" id="formPrezzo" class="form-input"
+                    <div class="ag-input-group">
+                        <input type="number" name="prezzoBase" id="formPrezzo" class="ag-form-input"
                                step="0.01" min="0" required>
-                        <span class="input-group-append">€</span>
+                        <span class="ag-input-group-append">€</span>
                     </div>
                 </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-light" onclick="closeModal('modalNuovoProdotto')">Annulla</button>
-                <button type="submit" class="btn btn-primary">Salva</button>
+            <div class="ag-modal-footer">
+                <button type="button" class="btn btn-outline-secondary btn-sm" onclick="closeModal('modalNuovoProdotto')">Annulla</button>
+                <button type="submit" class="btn btn-success btn-sm">
+                    <i class="fas fa-save me-1"></i> Salva
+                </button>
             </div>
         </form>
     </div>
 </div>
 
 <script>
-function openModal(id) { document.getElementById(id).classList.add('active'); }
+function openModal(id)  { document.getElementById(id).classList.add('active'); }
 
 function closeModal(id) {
     document.getElementById(id).classList.remove('active');
@@ -170,37 +173,34 @@ function closeModal(id) {
         document.getElementById('formAction').value = 'create';
         document.getElementById('modalTitle').textContent = 'Nuovo Prodotto';
         document.querySelector('#modalNuovoProdotto form').reset();
+        document.getElementById('prezzoPer').textContent = '';
     }
 }
 
-// Label prezzo dinamica in base all'unità selezionata
 const unitaLabels = {
     'kg':     '— prezzo per kg',
     'litro':  '— prezzo per litro',
     'pezzo':  '— prezzo al pezzo',
     'grammo': '— prezzo per grammo'
 };
-function aggiornaLabelPrezzo(val) {
-    const el = document.getElementById('prezzoPer');
-    if (el) el.textContent = unitaLabels[val] || '';
-}
 document.getElementById('formUnita')?.addEventListener('change', function() {
-    aggiornaLabelPrezzo(this.value);
+    const el = document.getElementById('prezzoPer');
+    if (el) el.textContent = unitaLabels[this.value] || '';
 });
 
 function editProdotto(prodotto) {
-    document.getElementById('formAction').value    = 'update';
+    document.getElementById('formAction').value     = 'update';
     document.getElementById('formIdProdotto').value = prodotto.idProdotto;
     document.getElementById('formNome').value       = prodotto.nome;
     document.getElementById('formCategoria').value  = prodotto.idCategoria;
     document.getElementById('formUnita').value      = prodotto.unitaMisura;
     document.getElementById('formPrezzo').value     = prodotto.prezzoBase;
     document.getElementById('modalTitle').textContent = 'Modifica Prodotto';
-    aggiornaLabelPrezzo(prodotto.unitaMisura);
+    const el = document.getElementById('prezzoPer');
+    if (el) el.textContent = unitaLabels[prodotto.unitaMisura] || '';
     openModal('modalNuovoProdotto');
 }
 
-// Ricerca live
 document.getElementById('searchProdotti').addEventListener('input', function(e) {
     const search = e.target.value.toLowerCase();
     document.querySelectorAll('#tableProdotti tr').forEach(row => {

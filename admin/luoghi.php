@@ -1,7 +1,6 @@
 <?php
 /**
- * LUOGHI - Admin
- * Azienda Agricola — CRUD completo
+ * LUOGHI - Admin — FIXED: classi ag-modal
  */
 
 require_once '../includes/db.php';
@@ -20,13 +19,11 @@ $dispense = fetchAll($conn,
      ORDER BY l.nome, d.nome"
 );
 
-// Raggruppa dispense per luogo per visualizzazione
 $dispensePerLuogo = [];
 foreach ($dispense as $d) {
     $dispensePerLuogo[$d['idLuogo']][] = $d;
 }
 
-// Icone e label per tipo
 $tipoInfo = [
     'campo'         => ['icon' => 'fa-seedling',  'label' => 'Campo',         'css' => 'campo'],
     'laboratorio'   => ['icon' => 'fa-flask',     'label' => 'Laboratorio',   'css' => 'laboratorio'],
@@ -43,13 +40,12 @@ include '../includes/header_admin.php';
         Gestione Luoghi
     </h1>
     <div class="admin-page-actions">
-        <button class="btn btn-primary" onclick="openModal('modalNuovoLuogo')">
+        <button class="btn btn-success btn-sm" onclick="openModal('modalNuovoLuogo')">
             <i class="fas fa-plus me-1"></i> Nuovo Luogo
         </button>
     </div>
 </div>
 
-<!-- Griglia luoghi -->
 <?php if (empty($luoghi)): ?>
 <div class="empty-state">
     <i class="fas fa-map-marker-alt"></i>
@@ -75,7 +71,6 @@ include '../includes/header_admin.php';
                 </span>
             </div>
         </div>
-
         <div class="luogo-card-body">
             <?php if (!empty($l['indirizzo'])): ?>
             <p class="luogo-indirizzo">
@@ -84,11 +79,9 @@ include '../includes/header_admin.php';
             </p>
             <?php else: ?>
             <p class="luogo-indirizzo text-muted fst-italic">
-                <i class="fas fa-location-dot" style="font-size:.75rem"></i>
-                Nessun indirizzo
+                <i class="fas fa-location-dot" style="font-size:.75rem"></i> Nessun indirizzo
             </p>
             <?php endif; ?>
-
             <?php if ($nDispense > 0): ?>
             <div class="mt-2">
                 <small class="text-muted">
@@ -98,22 +91,18 @@ include '../includes/header_admin.php';
             </div>
             <?php endif; ?>
         </div>
-
         <div class="luogo-card-footer">
-            <!-- Aggiungi dispensa -->
             <button class="action-btn" title="Aggiungi Dispensa"
                     onclick='openDispensaModal(<?php echo $l["idLuogo"]; ?>, <?php echo json_encode($l["nome"]); ?>)'
                     style="color: var(--ag-amber)">
                 <i class="fas fa-boxes-stacked" style="font-size:.75rem"></i>
             </button>
-            <!-- Modifica -->
-            <button class="action-btn btn-edit" title="Modifica Luogo"
+            <button class="action-btn" title="Modifica Luogo"
                     onclick='editLuogo(<?php echo json_encode($l); ?>)'>
                 <i class="fas fa-pen" style="font-size:.75rem"></i>
             </button>
-            <!-- Elimina -->
             <form method="POST" action="/api/luoghi.php" style="display:inline"
-                  onsubmit="return confirm('Eliminare il luogo &quot;<?php echo htmlspecialchars(addslashes($l['nome'])); ?>&quot;?\nAttenzione: non sarà possibile se ha lavorazioni, confezionamenti, vendite o dispense associate.')">
+                  onsubmit="return confirm('Eliminare il luogo &quot;<?php echo htmlspecialchars(addslashes($l['nome'])); ?>&quot;?')">
                 <input type="hidden" name="action" value="delete">
                 <input type="hidden" name="idLuogo" value="<?php echo $l['idLuogo']; ?>">
                 <button type="submit" class="btn-danger-sm" title="Elimina Luogo">
@@ -126,7 +115,6 @@ include '../includes/header_admin.php';
 </div>
 <?php endif; ?>
 
-<!-- Sezione Dispense -->
 <?php if (!empty($dispense)): ?>
 <div class="dispense-section">
     <h6 class="dispense-section-title">
@@ -150,7 +138,7 @@ include '../includes/header_admin.php';
                     <td class="text-muted small"><?php echo htmlspecialchars($d['nomeLuogo']); ?></td>
                     <td class="text-muted small"><?php echo htmlspecialchars($d['ubicazione'] ?? '—'); ?></td>
                     <td class="text-center pe-3">
-                        <span class="text-muted x-small">#<?php echo $d['idDispensa']; ?></span>
+                        <span class="text-muted" style="font-size:.7rem">#<?php echo $d['idDispensa']; ?></span>
                     </td>
                 </tr>
                 <?php endforeach; ?>
@@ -160,31 +148,29 @@ include '../includes/header_admin.php';
 </div>
 <?php endif; ?>
 
-
-<!-- ===== MODAL NUOVO / MODIFICA LUOGO ===== -->
+<!-- ===== MODAL NUOVO/MODIFICA LUOGO ===== -->
 <div class="modal-overlay" id="modalNuovoLuogo">
-    <div class="modal">
-        <div class="modal-header">
-            <h3 class="modal-title" id="modalLuogoTitle">
+    <div class="ag-modal">
+        <div class="ag-modal-header">
+            <h3 class="ag-modal-title" id="modalLuogoTitle">
                 <i class="fas fa-map-marker-alt me-2 text-success" style="font-size:.85rem"></i>
                 Nuovo Luogo
             </h3>
-            <button class="modal-close" onclick="closeModal('modalNuovoLuogo')">&times;</button>
+            <button class="ag-modal-close" onclick="closeModal('modalNuovoLuogo')">&times;</button>
         </div>
         <form method="POST" action="/api/luoghi.php" id="formLuogo">
-            <div class="modal-body">
+            <div class="ag-modal-body">
                 <input type="hidden" name="action" id="luogoAction" value="create">
                 <input type="hidden" name="idLuogo" id="luogoId">
 
-                <div class="form-group">
-                    <label class="form-label required">Nome</label>
-                    <input type="text" name="nome" id="luogoNome" class="form-input"
+                <div class="ag-form-group">
+                    <label class="ag-form-label required">Nome</label>
+                    <input type="text" name="nome" id="luogoNome" class="ag-form-input"
                            placeholder="es. Campo Nord, Laboratorio A..." required maxlength="150">
                 </div>
-
-                <div class="form-group">
-                    <label class="form-label required">Tipo</label>
-                    <select name="tipo" id="luogoTipo" class="form-input" required>
+                <div class="ag-form-group">
+                    <label class="ag-form-label required">Tipo</label>
+                    <select name="tipo" id="luogoTipo" class="form-select form-select-sm" required>
                         <option value="">-- Seleziona tipo --</option>
                         <option value="campo">🌾 Campo</option>
                         <option value="laboratorio">🔬 Laboratorio</option>
@@ -192,19 +178,18 @@ include '../includes/header_admin.php';
                         <option value="magazzino">🏭 Magazzino</option>
                     </select>
                 </div>
-
-                <div class="form-group">
-                    <label class="form-label">Indirizzo</label>
-                    <input type="text" name="indirizzo" id="luogoIndirizzo" class="form-input"
+                <div class="ag-form-group">
+                    <label class="ag-form-label">Indirizzo</label>
+                    <input type="text" name="indirizzo" id="luogoIndirizzo" class="ag-form-input"
                            placeholder="Via, numero civico, città..." maxlength="255">
                 </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-light" onclick="closeModal('modalNuovoLuogo')">
+            <div class="ag-modal-footer">
+                <button type="button" class="btn btn-outline-secondary btn-sm" onclick="closeModal('modalNuovoLuogo')">
                     Annulla
                 </button>
-                <button type="submit" class="btn btn-primary" id="luogoSubmitBtn">
-                    <i class="fas fa-save me-1"></i>Salva Luogo
+                <button type="submit" class="btn btn-success btn-sm" id="luogoSubmitBtn">
+                    <i class="fas fa-save me-1"></i> Salva Luogo
                 </button>
             </div>
         </form>
@@ -213,51 +198,46 @@ include '../includes/header_admin.php';
 
 <!-- ===== MODAL NUOVA DISPENSA ===== -->
 <div class="modal-overlay" id="modalNuovaDispensa">
-    <div class="modal">
-        <div class="modal-header">
-            <h3 class="modal-title">
+    <div class="ag-modal">
+        <div class="ag-modal-header">
+            <h3 class="ag-modal-title">
                 <i class="fas fa-boxes-stacked me-2" style="font-size:.85rem; color: var(--ag-amber)"></i>
                 Nuova Dispensa
             </h3>
-            <button class="modal-close" onclick="closeModal('modalNuovaDispensa')">&times;</button>
+            <button class="ag-modal-close" onclick="closeModal('modalNuovaDispensa')">&times;</button>
         </div>
         <form method="POST" action="/api/luoghi.php">
-            <div class="modal-body">
+            <div class="ag-modal-body">
                 <input type="hidden" name="action" value="create_dispensa">
                 <input type="hidden" name="idLuogo" id="dispensaIdLuogo">
 
-                <div class="form-group">
-                    <label class="form-label">Luogo selezionato</label>
-                    <div class="form-input" id="dispensaLuogoLabel"
-                         style="background:#f8fafc; cursor:default; color:#64748b; font-size:.8rem">
-                        —
-                    </div>
+                <div class="ag-form-group">
+                    <label class="ag-form-label">Luogo selezionato</label>
+                    <div class="ag-form-input" id="dispensaLuogoLabel"
+                         style="background:#f8fafc; cursor:default; color:#64748b; font-size:.8rem">—</div>
                 </div>
-
-                <div class="form-group">
-                    <label class="form-label required">Nome Dispensa</label>
-                    <input type="text" name="nomeDispensa" class="form-input"
+                <div class="ag-form-group">
+                    <label class="ag-form-label required">Nome Dispensa</label>
+                    <input type="text" name="nomeDispensa" class="ag-form-input"
                            placeholder="es. Dispensa Olio, Cella Frigorifera..." required maxlength="150">
                 </div>
-
-                <div class="form-group">
-                    <label class="form-label">Ubicazione</label>
-                    <input type="text" name="ubicazione" class="form-input"
+                <div class="ag-form-group">
+                    <label class="ag-form-label">Ubicazione</label>
+                    <input type="text" name="ubicazione" class="ag-form-input"
                            placeholder="es. Piano -1, Zona B..." maxlength="255">
                 </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-light" onclick="closeModal('modalNuovaDispensa')">
+            <div class="ag-modal-footer">
+                <button type="button" class="btn btn-outline-secondary btn-sm" onclick="closeModal('modalNuovaDispensa')">
                     Annulla
                 </button>
-                <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-save me-1"></i>Salva Dispensa
+                <button type="submit" class="btn btn-success btn-sm">
+                    <i class="fas fa-save me-1"></i> Salva Dispensa
                 </button>
             </div>
         </form>
     </div>
 </div>
-
 
 <script>
 function openModal(id)  { document.getElementById(id).classList.add('active'); }
@@ -276,7 +256,7 @@ function resetLuogoModal() {
     document.getElementById('modalLuogoTitle').innerHTML =
         '<i class="fas fa-map-marker-alt me-2 text-success" style="font-size:.85rem"></i>Nuovo Luogo';
     document.getElementById('luogoSubmitBtn').innerHTML =
-        '<i class="fas fa-save me-1"></i>Salva Luogo';
+        '<i class="fas fa-save me-1"></i> Salva Luogo';
 }
 
 function editLuogo(luogo) {
@@ -288,12 +268,12 @@ function editLuogo(luogo) {
     document.getElementById('modalLuogoTitle').innerHTML =
         '<i class="fas fa-pen me-2" style="font-size:.85rem;color:var(--ag-green)"></i>Modifica Luogo';
     document.getElementById('luogoSubmitBtn').innerHTML =
-        '<i class="fas fa-save me-1"></i>Aggiorna Luogo';
+        '<i class="fas fa-save me-1"></i> Aggiorna Luogo';
     openModal('modalNuovoLuogo');
 }
 
 function openDispensaModal(idLuogo, nomeLuogo) {
-    document.getElementById('dispensaIdLuogo').value   = idLuogo;
+    document.getElementById('dispensaIdLuogo').value    = idLuogo;
     document.getElementById('dispensaLuogoLabel').textContent = nomeLuogo;
     openModal('modalNuovaDispensa');
 }

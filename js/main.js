@@ -1,116 +1,73 @@
 /**
- * MAIN.JS
- * Azienda Agricola - Script principale
+ * MAIN.JS — FIXED
+ * - showToast usa classi .ag-toast invece di .toast (conflitto BS5)
+ * - escapeHtml disponibile globalmente (era usata in admin/vendite.php inline)
  */
 
-// Gestione navbar mobile
 document.addEventListener('DOMContentLoaded', function() {
-    // Toggle menu mobile
-    const navbarToggle = document.querySelector('.navbar-toggle');
-    const navbarMenu = document.querySelector('.navbar-menu');
-    
-    if (navbarToggle && navbarMenu) {
-        navbarToggle.addEventListener('click', function() {
-            navbarMenu.classList.toggle('active');
+    // Toggle menu mobile (sidebar admin)
+    var toggle = document.getElementById('sidebarToggle');
+    var sidebar = document.getElementById('sidebar');
+    if (toggle && sidebar) {
+        toggle.addEventListener('click', function() {
+            sidebar.classList.toggle('sidebar-open');
         });
     }
-    
-    // Chiudi alert dismissible
-    const alertCloseButtons = document.querySelectorAll('.alert-close');
-    alertCloseButtons.forEach(function(button) {
-        button.addEventListener('click', function() {
-            const alert = this.closest('.alert');
-            if (alert) {
-                alert.style.display = 'none';
-            }
-        });
-    });
-    
-    // Auto-hide flash messages dopo 5 secondi
-    const flashMessages = document.querySelectorAll('.alert');
-    flashMessages.forEach(function(alert) {
-        if (!alert.classList.contains('alert-dismissible')) {
-            setTimeout(function() {
-                alert.style.opacity = '0';
-                alert.style.transition = 'opacity 0.5s ease';
-                setTimeout(function() {
-                    alert.style.display = 'none';
-                }, 500);
-            }, 5000);
-        }
-    });
-    
-    // Gestione dropdown menu admin
-    const dropdowns = document.querySelectorAll('.nav-dropdown');
-    dropdowns.forEach(function(dropdown) {
-        const toggle = dropdown.querySelector('.dropdown-toggle');
-        const menu = dropdown.querySelector('.dropdown-menu');
-        
-        if (toggle && menu) {
-            // Mobile: click per aprire/chiudere
-            if (window.innerWidth <= 1100) {
-                toggle.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
-                });
-            }
-        }
+
+    // Toggle menu mobile (navbar cliente)
+    var navbarToggle = document.querySelector('.navbar-toggler');
+    // Bootstrap 5 gestisce questo da solo, non serve JS manuale
+
+    // Auto-hide alert Bootstrap dopo 5 secondi
+    document.querySelectorAll('.alert.alert-dismissible').forEach(function(alert) {
+        setTimeout(function() {
+            alert.style.opacity = '0';
+            alert.style.transition = 'opacity 0.5s ease';
+            setTimeout(function() { alert.style.display = 'none'; }, 500);
+        }, 5000);
     });
 });
 
 /**
- * Utility: Mostra toast notification
+ * Mostra toast notification
+ * FIXED: usa .ag-toast per non confondersi con Bootstrap .toast
  */
 function showToast(message, type = 'info') {
-    const toastContainer = document.querySelector('.toast-container') || createToastContainer();
-    
+    let container = document.querySelector('.toast-container');
+    if (!container) {
+        container = document.createElement('div');
+        container.className = 'toast-container';
+        document.body.appendChild(container);
+    }
+
     const toast = document.createElement('div');
-    toast.className = `toast toast-${type}`;
-    toast.innerHTML = `
-        <div class="toast-content">
-            <p class="toast-message">${escapeHtml(message)}</p>
-        </div>
-        <button class="toast-close">&times;</button>
-    `;
-    
-    toastContainer.appendChild(toast);
-    
-    // Chiudi al click
-    const closeBtn = toast.querySelector('.toast-close');
-    closeBtn.addEventListener('click', function() {
-        toast.remove();
-    });
-    
-    // Auto rimuovi dopo 5 secondi
+    toast.className = 'ag-toast toast-' + type;
+    toast.innerHTML =
+        '<div style="flex:1;font-size:.8125rem">' + escapeHtml(message) + '</div>' +
+        '<button class="ag-toast-close" onclick="this.parentElement.remove()">&times;</button>';
+
+    container.appendChild(toast);
+
     setTimeout(function() {
         toast.style.opacity = '0';
-        setTimeout(function() {
-            toast.remove();
-        }, 300);
+        toast.style.transition = 'opacity .3s';
+        setTimeout(function() { toast.remove(); }, 300);
     }, 5000);
 }
 
 /**
- * Utility: Crea container per toast
- */
-function createToastContainer() {
-    const container = document.createElement('div');
-    container.className = 'toast-container';
-    document.body.appendChild(container);
-    return container;
-}
-
-/**
- * Utility: Escape HTML
+ * escapeHtml — disponibile globalmente
+ * Necessaria anche negli script inline di admin/vendite.php
  */
 function escapeHtml(text) {
+    if (text === null || text === undefined) return '';
     const div = document.createElement('div');
-    div.textContent = text;
+    div.textContent = String(text);
     return div.innerHTML;
 }
 
 /**
- * Utility: Formatta prezzo
+ * formatPrice — utility
  */
 function formatPrice(amount) {
     return new Intl.NumberFormat('it-IT', {
@@ -120,55 +77,24 @@ function formatPrice(amount) {
 }
 
 /**
- * Utility: Mostra loading overlay
+ * showLoading / hideLoading
  */
 function showLoading() {
+    if (document.getElementById('ag-loading')) return;
     const overlay = document.createElement('div');
     overlay.className = 'loading-overlay';
+    overlay.id = 'ag-loading';
     overlay.innerHTML = '<div class="spinner"></div>';
-    overlay.id = 'loading-overlay';
     document.body.appendChild(overlay);
 }
-
-/**
- * Utility: Nascondi loading overlay
- */
 function hideLoading() {
-    const overlay = document.getElementById('loading-overlay');
-    if (overlay) {
-        overlay.remove();
-    }
+    const overlay = document.getElementById('ag-loading');
+    if (overlay) overlay.remove();
 }
 
 /**
- * Utility: Conferma azione
+ * confirmAction — utility
  */
 function confirmAction(message, callback) {
-    if (confirm(message)) {
-        callback();
-    }
-}
-
-/**
- * Utility: Fetch API wrapper con gestione errori
- */
-async function fetchAPI(url, options = {}) {
-    try {
-        const response = await fetch(url, {
-            ...options,
-            headers: {
-                'Content-Type': 'application/json',
-                ...options.headers
-            }
-        });
-        
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
-        return await response.json();
-    } catch (error) {
-        console.error('Fetch error:', error);
-        throw error;
-    }
+    if (confirm(message)) callback();
 }
