@@ -1,27 +1,35 @@
 <?php
 /**
- * CARRELLO.PHP - Cliente / Ospite
+ * CARRELLO.PHP — FIXED
+ *
+ * Fix: isGuest() ora funziona anche senza ?guest=1 nell'URL
+ * perché la sessione guest è già in $_SESSION['guest'] = true.
+ * Il parametro ?guest=1 serve solo per la prima visita.
+ *
+ * Fix: cap quantità robustificato
  */
 
 require_once '../includes/db.php';
 require_once '../includes/auth.php';
 require_once '../includes/functions.php';
 
-// Inizializza sessione guest PRIMA di requireCliente()
+// Inizializza sessione guest solo alla PRIMA visita (parametro URL)
+// Nelle visite successive isGuest() legge già da $_SESSION
 if (isset($_GET['guest']) && $_GET['guest'] == '1' && !isLoggedIn() && !isGuest()) {
     loginGuest();
 }
 
 requireCliente();
+
 $pageTitle = 'Carrello';
 
 if (!isset($_SESSION['carrello'])) {
     $_SESSION['carrello'] = [];
 }
 
-$carrello  = $_SESSION['carrello'];
+$carrello   = $_SESSION['carrello'];
 $imponibile = 0;
-$items     = [];
+$items      = [];
 
 foreach ($carrello as $key => $item) {
     $sql = "SELECT p.nome, p.unitaMisura, cat.nome as categoria,
@@ -31,21 +39,26 @@ foreach ($carrello as $key => $item) {
             INNER JOIN CATEGORIA cat ON p.idCategoria = cat.idCategoria
             WHERE conf.idConfezionamento = ?";
     $det = fetchOne($conn, $sql, [$item['idConfezionamento']]);
+
     if ($det) {
-        $sub         = $det['prezzo'] * $item['quantita'];
+        // Cap automatico sulla giacenza disponibile
+        $qtaEffettiva = min((int)$item['quantita'], (int)$det['giacenzaAttuale']);
+        if ($qtaEffettiva < 1) continue; // Prodotto esaurito — salta
+
+        $sub         = $det['prezzo'] * $qtaEffettiva;
         $imponibile += $sub;
         $items[]     = array_merge($det, [
             'key'               => $key,
             'idConfezionamento' => $item['idConfezionamento'],
-            'quantita'          => $item['quantita'],
+            'quantita'          => $qtaEffettiva,
             'subtotale'         => $sub,
         ]);
     }
 }
 
 // IVA 22%
-$ivaPerc  = 22;
-$ivaAmt   = round($imponibile * $ivaPerc / 100, 2);
+$ivaPerc   = 22;
+$ivaAmt    = round($imponibile * $ivaPerc / 100, 2);
 $totaleCon = round($imponibile + $ivaAmt, 2);
 
 include '../includes/header_cliente.php';
@@ -70,21 +83,23 @@ include '../includes/header_cliente.php';
         <h4 class="mb-3 fw-bold">
             <i class="fas fa-shopping-basket me-2 text-success"></i>
             Il tuo carrello
-            <span class="text-muted fs-6 fw-normal">(<?php echo count($items); ?> prodott<?php echo count($items) != 1 ? 'i' : 'o'; ?>)</span>
+            <span class="text-muted fs-6 fw-normal">
+                (<?php echo count($items); ?> prodott<?php echo count($items) != 1 ? 'i' : 'o'; ?>)
+            </span>
         </h4>
 
         <div class="card border-0 shadow-sm">
             <?php foreach ($items as $i => $item): ?>
-            <div class="card-body border-bottom d-flex align-items-center gap-3 <?php echo $i === count($items)-1 ? 'border-0' : ''; ?>">
+            <div class="card-body <?php echo $i < count($items)-1 ? 'border-bottom' : ''; ?> d-flex align-items-center gap-3">
 
-                <!-- Icona prodotto -->
                 <div class="cart-item-icon">
                     <i class="fas fa-seedling"></i>
                 </div>
 
-                <!-- Info -->
-                <div class="flex-grow-1 min-width-0">
-                    <div class="fw-semibold text-truncate"><?php echo htmlspecialchars($item['nome']); ?></div>
+                <div class="flex-grow-1" style="min-width:0">
+                    <div class="fw-semibold text-truncate">
+                        <?php echo htmlspecialchars($item['nome']); ?>
+                    </div>
                     <small class="text-muted">
                         <?php echo htmlspecialchars($item['categoria']); ?>
                         &mdash; <?php echo formatWeight($item['pesoNetto'], $item['unitaMisura']); ?>/conf
@@ -93,7 +108,7 @@ include '../includes/header_cliente.php';
                 </div>
 
                 <!-- Quantità -->
-                <div style="width:120px">
+                <div style="width:130px">
                     <form method="POST" action="/api/carrello.php" class="input-group input-group-sm">
                         <input type="hidden" name="action" value="update">
                         <input type="hidden" name="key" value="<?php echo $item['key']; ?>">
@@ -102,7 +117,8 @@ include '../includes/header_cliente.php';
                             <i class="fas fa-minus" style="font-size:.6rem"></i>
                         </button>
                         <input type="number" name="quantita"
-                               class="form-control text-center qty-input"
+                               class="form-control text-center"
+                               style="font-size:.8rem"
                                value="<?php echo $item['quantita']; ?>"
                                min="1"
                                max="<?php echo $item['giacenzaAttuale']; ?>"
@@ -132,7 +148,7 @@ include '../includes/header_cliente.php';
             <?php endforeach; ?>
         </div>
 
-        <!-- Svuota -->
+        <!-- Azioni -->
         <div class="mt-2 d-flex justify-content-between align-items-center">
             <a href="/cliente/catalogo.php" class="btn btn-sm btn-outline-secondary">
                 <i class="fas fa-arrow-left me-1"></i>Continua gli acquisti
@@ -171,7 +187,7 @@ include '../includes/header_cliente.php';
 
             <div class="d-grid gap-2 mt-3">
                 <?php if (isGuest()): ?>
-                    <div class="alert alert-warning py-2 small text-center mb-2">
+                    <div class="alert alert-warning py-2 small text-center mb-0">
                         <i class="fas fa-lock me-1"></i>
                         <a href="/login.php" class="fw-semibold">Accedi</a> o
                         <a href="/registrazione.php" class="fw-semibold">registrati</a>
@@ -192,25 +208,24 @@ function cambiaQta(btn, delta) {
     const form  = btn.closest('form');
     const input = form.querySelector('input[name="quantita"]');
     const val   = parseInt(input.value) + delta;
-    const min   = parseInt(input.min);
-    const max   = parseInt(input.max);
+    const min   = parseInt(input.min) || 1;
+    const max   = parseInt(input.max) || 99999;
     if (val >= min && val <= max) {
         input.value = val;
         form.submit();
     }
 }
+
 function capQuantita(input) {
     let val      = parseInt(input.value) || 1;
-    const maxVal = parseInt(input.dataset.max) || 99999999;
+    const maxVal = parseInt(input.dataset.max || input.max) || 99999;
     const minVal = parseInt(input.min) || 1;
-    if (val > maxVal) {
-        input.value = maxVal;
-        if (typeof showToast === 'function') showToast('Quantità ridotta alla giacenza massima (' + maxVal + ')', 'warning');
-    }
+    if (val > maxVal) input.value = maxVal;
     if (val < minVal) input.value = minVal;
-    if (String(input.value).length > 8) input.value = String(input.value).slice(0, 8);
+    if (String(input.value).length > 6) input.value = String(input.value).slice(0, 6);
 }
 </script>
+
 <?php endif; ?>
 
 <?php include '../includes/footer_cliente.php'; ?>

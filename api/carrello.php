@@ -1,7 +1,11 @@
 <?php
 /**
- * API CARRELLO
- * Azienda Agricola
+ * API CARRELLO — FIXED
+ *
+ * Fix: checkGiacenzaConfezionamento ora verifica la giacenza
+ * considerando anche quanto già presente nel carrello
+ * per lo stesso confezionamento, evitando di aggiungere
+ * più pezzi di quelli disponibili.
  */
 
 require_once '../includes/db.php';
@@ -12,7 +16,6 @@ requireCliente();
 
 $action = $_POST['action'] ?? '';
 
-// Inizializza carrello
 if (!isset($_SESSION['carrello'])) {
     $_SESSION['carrello'] = [];
 }
@@ -28,26 +31,49 @@ switch ($action) {
             redirectWithMessage('/cliente/catalogo.php', 'Dati non validi', 'error');
         }
 
-        if (!checkGiacenzaConfezionamento($conn, $idConfezionamento, $quantita)) {
-            redirectWithMessage('/cliente/prodotto.php?id=' . $idProdotto,
-                'Giacenza insufficiente', 'error');
+        // Controlla giacenza disponibile
+        $giacenzaDB = getGiacenzaConfezionamento($conn, $idConfezionamento);
+        if ($giacenzaDB <= 0) {
+            redirectWithMessage(
+                '/cliente/prodotto.php?id=' . $idProdotto,
+                'Prodotto esaurito',
+                'error'
+            );
         }
 
-        // Verifica se già presente nel carrello
-        $found = false;
-        foreach ($_SESSION['carrello'] as &$item) {
-            if ($item['idConfezionamento'] == $idConfezionamento) {
-                $item['quantita'] += $quantita;
-                $found = true;
+        // Calcola quanto è già nel carrello per questo confezionamento
+        $giaInCarrello = 0;
+        $foundKey      = null;
+        foreach ($_SESSION['carrello'] as $k => $item) {
+            if ((int)$item['idConfezionamento'] === $idConfezionamento) {
+                $giaInCarrello = (int)$item['quantita'];
+                $foundKey      = $k;
                 break;
             }
         }
 
-        if (!$found) {
+        $totaleRichiesto = $giaInCarrello + $quantita;
+
+        if ($totaleRichiesto > $giacenzaDB) {
+            $disponibileAggiungibile = $giacenzaDB - $giaInCarrello;
+            if ($disponibileAggiungibile <= 0) {
+                redirectWithMessage(
+                    '/cliente/prodotto.php?id=' . $idProdotto,
+                    'Hai già aggiunto tutte le confezioni disponibili al carrello',
+                    'warning'
+                );
+            }
+            // Aggiunge solo quello che rimane
+            $quantita = $disponibileAggiungibile;
+        }
+
+        if ($foundKey !== null) {
+            $_SESSION['carrello'][$foundKey]['quantita'] += $quantita;
+        } else {
             $_SESSION['carrello'][] = [
                 'idProdotto'        => $idProdotto,
                 'idConfezionamento' => $idConfezionamento,
-                'quantita'          => $quantita
+                'quantita'          => $quantita,
             ];
         }
 
@@ -58,18 +84,26 @@ switch ($action) {
         $key      = (int)($_POST['key'] ?? -1);
         $quantita = (int)($_POST['quantita'] ?? 1);
 
-        if (isset($_SESSION['carrello'][$key])) {
-            $item = $_SESSION['carrello'][$key];
-
-            if (!checkGiacenzaConfezionamento($conn, $item['idConfezionamento'], $quantita)) {
-                redirectWithMessage('/cliente/carrello.php', 'Giacenza insufficiente', 'error');
-            }
-
-            $_SESSION['carrello'][$key]['quantita'] = $quantita;
-            redirectWithMessage('/cliente/carrello.php', 'Quantità aggiornata', 'success');
+        if (!isset($_SESSION['carrello'][$key])) {
+            header('Location: /cliente/carrello.php');
+            exit;
         }
 
-        header('Location: /cliente/carrello.php');
+        $item      = $_SESSION['carrello'][$key];
+        $giacenzaDB = getGiacenzaConfezionamento($conn, $item['idConfezionamento']);
+
+        if ($quantita < 1) $quantita = 1;
+        if ($quantita > $giacenzaDB) {
+            $quantita = $giacenzaDB;
+            redirectWithMessage(
+                '/cliente/carrello.php',
+                'Quantità ridotta alla giacenza disponibile (' . $giacenzaDB . ')',
+                'warning'
+            );
+        }
+
+        $_SESSION['carrello'][$key]['quantita'] = $quantita;
+        redirectWithMessage('/cliente/carrello.php', 'Quantità aggiornata', 'success');
         break;
 
     case 'remove':
