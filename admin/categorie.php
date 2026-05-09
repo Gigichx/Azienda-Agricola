@@ -57,6 +57,7 @@ include '../includes/header_admin.php';
                             </button>
                             <form method="POST" action="/api/categorie.php" style="display: inline;">
                                 <input type="hidden" name="action" value="delete">
+                                <input type="hidden" name="csrf_token" value="<?php echo generateCSRFToken(); ?>">
                                 <input type="hidden" name="idCategoria" value="<?php echo $c['idCategoria']; ?>">
                                 <button type="submit" class="btn-danger-sm"
                                         onclick="return confirm('Eliminare la categoria \'<?php echo htmlspecialchars(addslashes($c['nome'])); ?>\'?')">
@@ -84,6 +85,7 @@ include '../includes/header_admin.php';
         <form method="POST" action="/api/categorie.php">
             <div class="ag-modal-body">
                 <input type="hidden" name="action" id="catAction" value="create">
+                <input type="hidden" name="csrf_token" value="<?php echo generateCSRFToken(); ?>">
                 <input type="hidden" name="idCategoria" id="catId">
 
                 <div class="ag-form-group">

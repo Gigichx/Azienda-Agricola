@@ -30,13 +30,17 @@ $action = $_POST['action'] ?? '';
 
 if ($action === 'create') {
 
+    if (!verifyCSRFToken($_POST['csrf_token'] ?? '')) {
+        die('Errore CSRF: richiesta non valida.');
+    }
+
     if (!isset($_SESSION['carrello']) || empty($_SESSION['carrello'])) {
         redirectWithMessage('/cliente/catalogo.php', 'Carrello vuoto', 'error');
     }
 
     $note    = sanitizeInput($_POST['note'] ?? '');
     $carrello = $_SESSION['carrello'];
-    $ivaPerc  = 22;
+    $ivaPerc  = IVA_DEFAULT;
 
     mysqli_begin_transaction($conn);
 

@@ -85,6 +85,7 @@ include '../includes/header_admin.php';
                                 </button>
                                 <form method="POST" action="/api/prodotti.php" style="display: inline;">
                                     <input type="hidden" name="action" value="delete">
+                                    <input type="hidden" name="csrf_token" value="<?php echo generateCSRFToken(); ?>">
                                     <input type="hidden" name="idProdotto" value="<?php echo $p['idProdotto']; ?>">
                                     <button type="submit" class="btn-danger-sm"
                                             onclick="return confirm('Eliminare il prodotto \'<?php echo htmlspecialchars(addslashes($p['nome'])); ?>\'?')"
@@ -111,6 +112,7 @@ include '../includes/header_admin.php';
         <form method="POST" action="/api/prodotti.php">
             <div class="ag-modal-body">
                 <input type="hidden" name="action" id="formAction" value="create">
+                <input type="hidden" name="csrf_token" value="<?php echo generateCSRFToken(); ?>">
                 <input type="hidden" name="idProdotto" id="formIdProdotto">
 
                 <div class="ag-form-group">

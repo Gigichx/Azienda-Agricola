@@ -56,8 +56,8 @@ foreach ($carrello as $key => $item) {
     }
 }
 
-// IVA 22%
-$ivaPerc   = 22;
+// IVA
+$ivaPerc   = IVA_DEFAULT;
 $ivaAmt    = round($imponibile * $ivaPerc / 100, 2);
 $totaleCon = round($imponibile + $ivaAmt, 2);
 
@@ -111,6 +111,7 @@ include '../includes/header_cliente.php';
                 <div style="width:130px">
                     <form method="POST" action="/api/carrello.php" class="input-group input-group-sm">
                         <input type="hidden" name="action" value="update">
+                        <input type="hidden" name="csrf_token" value="<?php echo generateCSRFToken(); ?>">
                         <input type="hidden" name="key" value="<?php echo $item['key']; ?>">
                         <button type="button" class="btn btn-outline-secondary"
                                 onclick="cambiaQta(this, -1)">
@@ -139,6 +140,7 @@ include '../includes/header_cliente.php';
                 <!-- Rimuovi -->
                 <form method="POST" action="/api/carrello.php">
                     <input type="hidden" name="action" value="remove">
+                    <input type="hidden" name="csrf_token" value="<?php echo generateCSRFToken(); ?>">
                     <input type="hidden" name="key" value="<?php echo $item['key']; ?>">
                     <button type="submit" class="btn btn-sm btn-outline-danger border-0" title="Rimuovi">
                         <i class="fas fa-trash-alt"></i>
@@ -155,6 +157,7 @@ include '../includes/header_cliente.php';
             </a>
             <form method="POST" action="/api/carrello.php" class="d-inline">
                 <input type="hidden" name="action" value="clear">
+                <input type="hidden" name="csrf_token" value="<?php echo generateCSRFToken(); ?>">
                 <button type="submit" class="btn btn-sm btn-link text-danger text-decoration-none"
                         onclick="return confirm('Svuotare il carrello?')">
                     <i class="fas fa-trash me-1"></i>Svuota carrello

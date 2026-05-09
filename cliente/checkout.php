@@ -51,8 +51,8 @@ foreach ($carrello as $item) {
     }
 }
 
-// IVA 22%
-$ivaPerc   = 22;
+// IVA
+$ivaPerc   = IVA_DEFAULT;
 $ivaAmt    = round($imponibile * $ivaPerc / 100, 2);
 $totaleCon = round($imponibile + $ivaAmt, 2);
 
@@ -148,6 +148,7 @@ include '../includes/header_cliente.php';
             <form method="POST" action="/api/ordini.php" id="checkoutForm">
                 <div class="checkout-step-body">
                     <input type="hidden" name="action" value="create">
+                    <input type="hidden" name="csrf_token" value="<?php echo generateCSRFToken(); ?>">
 
                     <div class="mb-3">
                         <label for="note" class="form-label small fw-semibold">

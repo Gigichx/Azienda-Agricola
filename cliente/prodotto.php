@@ -131,6 +131,7 @@ include '../includes/header_cliente.php';
 
             <form action="/api/carrello.php" method="POST">
                 <input type="hidden" name="action" value="add">
+                <input type="hidden" name="csrf_token" value="<?php echo generateCSRFToken(); ?>">
                 <input type="hidden" name="idProdotto" value="<?php echo $prodotto['idProdotto']; ?>">
 
                 <!-- Selezione formato -->

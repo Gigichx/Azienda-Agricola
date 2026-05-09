@@ -27,7 +27,7 @@ Sistema gestionale completo per aziende agricole con e-commerce integrato.
 ## 🛠️ Stack Tecnologico
 
 - **Backend**: PHP 7.4+ (architettura procedurale organizzata)
-- **Database**: MySQL 5.7+ con mysqli
+- **Database**: MySQL 5.7+ con mysqli (estensione procedurale e prepared statements)
 - **Frontend**: HTML5, CSS3 custom, JavaScript vanilla
 - **Ambiente**: Docker (locale) con phpMyAdmin
 
@@ -125,8 +125,8 @@ define('DB_PASS', '');
 ## 🔒 Sicurezza
 
 - Password hash con **bcrypt**
-- **CSRF token** per form critici
-- **Prepared statements** PDO (SQL injection protection)
+- **CSRF token** per form critici (implementato)
+- **Prepared statements** MySQLi (SQL injection protection)
 - **Sanitizzazione input** su tutti i dati utente
 - **Timeout sessione** (30 minuti inattività)
 - **Validazione lato client e server**

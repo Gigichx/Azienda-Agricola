@@ -38,9 +38,9 @@ $dettagli = fetchAll($conn,
 
 // Calcola imponibile e IVA dal totale pagato
 $totalePagato = $ordine['totalePagato'];
-$ivaPerc      = 22;
-// totalePagato = imponibile * 1.22 => imponibile = totalePagato / 1.22
-$imponibile   = round($totalePagato / 1.22, 2);
+$ivaPerc      = IVA_DEFAULT;
+// totalePagato = imponibile * (1 + iva/100) => imponibile = totalePagato / (1 + iva/100)
+$imponibile   = round($totalePagato / (1 + $ivaPerc / 100), 2);
 $ivaAmt       = round($totalePagato - $imponibile, 2);
 
 $pageTitle = 'Ordine Confermato';
@@ -84,7 +84,7 @@ include '../includes/header_cliente.php';
                         <td><?php echo formatPrice($imponibile); ?></td>
                     </tr>
                     <tr>
-                        <td class="text-muted ps-0"><i class="fas fa-percent me-1"></i>IVA 22%</td>
+                        <td class="text-muted ps-0"><i class="fas fa-percent me-1"></i>IVA <?php echo $ivaPerc; ?>%</td>
                         <td><?php echo formatPrice($ivaAmt); ?></td>
                     </tr>
                     <tr class="fw-bold">
