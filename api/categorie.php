@@ -12,6 +12,12 @@ requireAdmin();
 
 $action = $_POST['action'] ?? '';
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!verifyCSRFToken($_POST['csrf_token'] ?? '')) {
+        die('Errore CSRF: richiesta non valida.');
+    }
+}
+
 switch ($action) {
 
     case 'create':

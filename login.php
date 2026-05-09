@@ -19,6 +19,11 @@ if (isset($_GET['timeout']) && $_GET['timeout'] == '1') {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Verifica CSRF
+    if (!verifyCSRFToken($_POST['csrf_token'] ?? '')) {
+        die('Errore CSRF: richiesta non valida.');
+    }
+
     // NON usare sanitizeInput sull'email prima della query: htmlspecialchars corrompe la ricerca
     $email    = trim($_POST['email'] ?? '');
     $password = $_POST['password'] ?? '';
@@ -87,6 +92,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <?php endif; ?>
 
                 <form method="POST" action="/login.php">
+                    <input type="hidden" name="csrf_token" value="<?php echo generateCSRFToken(); ?>">
                     <div class="mb-3">
                         <label for="email" class="form-label small fw-semibold">Email</label>
                         <input type="email" id="email" name="email" class="form-control"

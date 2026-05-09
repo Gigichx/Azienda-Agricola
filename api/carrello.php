@@ -16,6 +16,18 @@ requireCliente();
 
 $action = $_POST['action'] ?? '';
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!verifyCSRFToken($_POST['csrf_token'] ?? '')) {
+        // Le azioni carrello sono meno critiche ma proteggiamo comunque l'aggiunta
+        // Le azioni inline da carrello.php potrebbero non avere il token se non aggiornate,
+        // ma aggiorniamo anche quelle per coerenza.
+        // Se l'azione è 'add' o proviene da un form completo, verifichiamo.
+        if (in_array($action, ['add', 'update', 'remove', 'clear'])) {
+            die('Errore CSRF: richiesta non valida.');
+        }
+    }
+}
+
 if (!isset($_SESSION['carrello'])) {
     $_SESSION['carrello'] = [];
 }

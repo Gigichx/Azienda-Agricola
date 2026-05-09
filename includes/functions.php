@@ -4,6 +4,9 @@
  * Azienda Agricola
  */
 
+// Costanti Globali
+define('IVA_DEFAULT', 22);
+
 /**
  * Formatta prezzo in euro
  */
@@ -239,4 +242,27 @@ function getFlashMessage() {
         return $message;
     }
     return null;
+}
+
+/**
+ * Genera CSRF token
+ */
+function generateCSRFToken() {
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
+    if (!isset($_SESSION['csrf_token'])) {
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    }
+    return $_SESSION['csrf_token'];
+}
+
+/**
+ * Verifica CSRF token
+ */
+function verifyCSRFToken($token) {
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
+    return isset($_SESSION['csrf_token']) && hash_equals($_SESSION['csrf_token'], $token);
 }

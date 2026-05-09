@@ -15,6 +15,9 @@ $error   = '';
 $success = false;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!verifyCSRFToken($_POST['csrf_token'] ?? '')) {
+        die('Errore CSRF: richiesta non valida.');
+    }
     $nome             = sanitizeInput($_POST['nome'] ?? '');
     $cognome          = sanitizeInput($_POST['cognome'] ?? '');
     $email            = sanitizeInput($_POST['email'] ?? '');
@@ -105,6 +108,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <?php endif; ?>
 
                     <form method="POST" action="/registrazione.php">
+                        <input type="hidden" name="csrf_token" value="<?php echo generateCSRFToken(); ?>">
                         <div class="row g-3 mb-3">
                             <div class="col">
                                 <label class="form-label small fw-semibold">Nome <span class="text-danger">*</span></label>
