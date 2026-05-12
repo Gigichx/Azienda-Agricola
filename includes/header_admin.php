@@ -103,7 +103,13 @@ if (!defined('APP_NAME')) {
             <li class="nav-item">
                 <a href="/admin/archivio.php"
                    class="nav-link <?php echo basename($_SERVER['PHP_SELF']) == 'archivio.php' ? 'active' : ''; ?>">
-                    <i class="fas fa-chart-bar me-2"></i>Archivio / Report
+                    <i class="fas fa-file-invoice-dollar me-2"></i>Report Vendite
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="/admin/report-produzione.php"
+                   class="nav-link <?php echo basename($_SERVER['PHP_SELF']) == 'report-produzione.php' ? 'active' : ''; ?>">
+                    <i class="fas fa-chart-line me-2"></i>Report Produzione
                 </a>
             </li>
         </ul>
