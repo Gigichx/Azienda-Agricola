@@ -1,11 +1,6 @@
-/**
- * MODALS CSS
- * Azienda Agricola
- */
 
-/* ============================================
-   MODAL OVERLAY
-   ============================================ */
+
+
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -27,9 +22,7 @@
     visibility: visible;
 }
 
-/* ============================================
-   MODAL
-   ============================================ */
+
 .modal {
     background-color: var(--color-bg-card);
     border-radius: var(--radius-lg);
@@ -48,9 +41,7 @@
     transform: scale(1);
 }
 
-/* ============================================
-   MODAL HEADER
-   ============================================ */
+
 .modal-header {
     display: flex;
     justify-content: space-between;
@@ -89,18 +80,14 @@
     color: var(--color-text);
 }
 
-/* ============================================
-   MODAL BODY
-   ============================================ */
+
 .modal-body {
     padding: var(--spacing-xl);
     overflow-y: auto;
     flex: 1;
 }
 
-/* ============================================
-   MODAL FOOTER
-   ============================================ */
+
 .modal-footer {
     display: flex;
     justify-content: flex-end;
@@ -110,9 +97,7 @@
     background-color: var(--color-bg);
 }
 
-/* ============================================
-   MODAL SIZES
-   ============================================ */
+
 .modal-sm {
     max-width: 400px;
 }
@@ -130,9 +115,7 @@
     max-height: 95vh;
 }
 
-/* ============================================
-   CONFIRM DIALOG
-   ============================================ */
+
 .confirm-dialog {
     max-width: 450px;
     text-align: center;
@@ -175,9 +158,7 @@
     justify-content: center;
 }
 
-/* ============================================
-   RESPONSIVE
-   ============================================ */
+
 @media (max-width: 768px) {
     .modal {
         width: 95%;

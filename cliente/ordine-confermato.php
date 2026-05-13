@@ -1,7 +1,5 @@
 <?php
-/**
- * ORDINE CONFERMATO - Cliente
- */
+
 
 require_once '../includes/db.php';
 require_once '../includes/auth.php';
@@ -36,10 +34,10 @@ $dettagli = fetchAll($conn,
     [$idVendita]
 );
 
-// Calcola imponibile e IVA dal totale pagato
+
 $totalePagato = $ordine['totalePagato'];
 $ivaPerc      = IVA_DEFAULT;
-// totalePagato = imponibile * (1 + iva/100) => imponibile = totalePagato / (1 + iva/100)
+
 $imponibile   = round($totalePagato / (1 + $ivaPerc / 100), 2);
 $ivaAmt       = round($totalePagato - $imponibile, 2);
 
@@ -58,7 +56,7 @@ include '../includes/header_cliente.php';
             </div>
             <h2 class="h3 fw-bold mb-1">Ordine confermato!</h2>
             <p class="text-muted">
-                Ordine <strong>#<?php echo $ordine['idVendita']; ?></strong> registrato con successo.
+                Ordine <strong>
             </p>
         </div>
 

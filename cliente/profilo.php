@@ -1,13 +1,11 @@
 <?php
-/**
- * PROFILO.PHP - Cliente
- */
+
 
 require_once '../includes/db.php';
 require_once '../includes/auth.php';
 require_once '../includes/functions.php';
 
-// Il profilo richiede login registrato (non guest)
+
 if (!isCliente()) {
     if (isGuest()) {
         redirectWithMessage('/login.php', 'Accedi per visualizzare il tuo profilo', 'warning');
@@ -122,7 +120,7 @@ include '../includes/header_cliente.php';
             <div class="ordine-card-header">
                 <div>
                     <div class="fw-semibold">
-                        <i class="fas fa-hashtag me-1 text-muted" style="font-size:.8rem"></i>Ordine #<?php echo $ordine['idVendita']; ?>
+                        <i class="fas fa-hashtag me-1 text-muted" style="font-size:.8rem"></i>Ordine 
                     </div>
                     <small class="text-muted">
                         <i class="fas fa-calendar-alt me-1"></i><?php echo formatDate($ordine['dataVendita'], true); ?>

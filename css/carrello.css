@@ -1,20 +1,13 @@
-/**
- * CARRELLO CSS
- * Azienda Agricola
- */
 
-/* ============================================
-   CARRELLO LAYOUT
-   ============================================ */
+
+
 .carrello-container {
     display: grid;
     grid-template-columns: 1fr 400px;
     gap: var(--spacing-xl);
 }
 
-/* ============================================
-   CARRELLO ITEMS
-   ============================================ */
+
 .carrello-items {
     background-color: var(--color-bg-card);
     border-radius: var(--radius-lg);
@@ -121,9 +114,7 @@
     opacity: 0.7;
 }
 
-/* ============================================
-   CARRELLO RIEPILOGO
-   ============================================ */
+
 .carrello-riepilogo {
     background-color: var(--color-bg-card);
     border-radius: var(--radius-lg);
@@ -194,9 +185,7 @@
     gap: var(--spacing-sm);
 }
 
-/* ============================================
-   CARRELLO VUOTO
-   ============================================ */
+
 .carrello-vuoto {
     background-color: var(--color-bg-card);
     border-radius: var(--radius-lg);
@@ -217,9 +206,7 @@
     margin-bottom: var(--spacing-lg);
 }
 
-/* ============================================
-   CHECKOUT
-   ============================================ */
+
 .checkout-container {
     max-width: 800px;
     margin: 0 auto;
@@ -300,9 +287,7 @@
     margin-bottom: var(--spacing-xl);
 }
 
-/* ============================================
-   RESPONSIVE
-   ============================================ */
+
 @media (max-width: 1024px) {
     .carrello-container {
         grid-template-columns: 1fr;

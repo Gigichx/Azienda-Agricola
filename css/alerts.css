@@ -1,11 +1,6 @@
-/**
- * ALERTS CSS
- * Azienda Agricola
- */
 
-/* ============================================
-   ALERT BASE
-   ============================================ */
+
+
 .alert {
     position: relative;
     display: flex;
@@ -54,11 +49,9 @@
     opacity: 1;
 }
 
-/* ============================================
-   ALERT VARIANTS
-   ============================================ */
 
-/* Success */
+
+
 .alert-success {
     background-color: #E8F5E9;
     color: #2E7D32;
@@ -77,7 +70,7 @@
     border-radius: 50%;
 }
 
-/* Error */
+
 .alert-error,
 .alert-danger {
     background-color: #FDE8E8;
@@ -98,7 +91,7 @@
     border-radius: 50%;
 }
 
-/* Warning */
+
 .alert-warning {
     background-color: #FFF3E0;
     color: #EF6C00;
@@ -117,7 +110,7 @@
     border-radius: 50%;
 }
 
-/* Info */
+
 .alert-info {
     background-color: #E3F2FD;
     color: #1565C0;
@@ -138,9 +131,7 @@
     font-weight: bold;
 }
 
-/* ============================================
-   ALERT SIZES
-   ============================================ */
+
 .alert-sm {
     padding: var(--spacing-sm) var(--spacing-md);
     font-size: var(--font-size-sm);
@@ -151,16 +142,12 @@
     font-size: var(--font-size-lg);
 }
 
-/* ============================================
-   ALERT DISMISSIBLE
-   ============================================ */
+
 .alert-dismissible {
     padding-right: calc(var(--spacing-xl) + 24px);
 }
 
-/* ============================================
-   TOAST NOTIFICATIONS
-   ============================================ */
+
 .toast-container {
     position: fixed;
     top: var(--spacing-xl);
@@ -248,9 +235,7 @@
     color: var(--color-text);
 }
 
-/* ============================================
-   INLINE MESSAGES
-   ============================================ */
+
 .inline-message {
     display: inline-flex;
     align-items: center;
@@ -280,9 +265,7 @@
     color: #1565C0;
 }
 
-/* ============================================
-   EMPTY STATE
-   ============================================ */
+
 .empty-state {
     display: flex;
     flex-direction: column;
@@ -316,9 +299,7 @@
     max-width: 400px;
 }
 
-/* ============================================
-   LOADING STATE
-   ============================================ */
+
 .loading-overlay {
     position: fixed;
     top: 0;
@@ -359,16 +340,14 @@
     border-width: 5px;
 }
 
-/* Inline spinner */
+
 .spinner-inline {
     display: inline-block;
     vertical-align: middle;
     margin-right: var(--spacing-sm);
 }
 
-/* ============================================
-   PROGRESS BAR
-   ============================================ */
+
 .progress {
     width: 100%;
     height: 8px;
@@ -396,9 +375,7 @@
     background-color: var(--color-error);
 }
 
-/* ============================================
-   RESPONSIVE
-   ============================================ */
+
 @media (max-width: 768px) {
     .toast-container {
         top: var(--spacing-md);

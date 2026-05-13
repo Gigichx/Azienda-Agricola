@@ -1,7 +1,4 @@
 <?php
-/**
- * GESTIONE CATEGORIE - Admin — FIXED
- */
 
 require_once '../includes/db.php';
 require_once '../includes/auth.php';

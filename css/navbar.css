@@ -1,11 +1,6 @@
-/**
- * NAVBAR CSS - Cliente
- * Azienda Agricola
- */
 
-/* ============================================
-   NAVBAR BASE
-   ============================================ */
+
+
 .navbar {
     background-color: var(--color-primary);
     box-shadow: var(--shadow-md);
@@ -22,9 +17,7 @@
     padding: var(--spacing-md) var(--spacing-lg);
 }
 
-/* ============================================
-   NAVBAR BRAND/LOGO
-   ============================================ */
+
 .navbar-brand a {
     display: flex;
     align-items: center;
@@ -49,9 +42,7 @@
     color: var(--color-text-light);
 }
 
-/* ============================================
-   NAVBAR MENU
-   ============================================ */
+
 .navbar-menu {
     display: flex;
     align-items: center;
@@ -96,14 +87,12 @@
     border-radius: var(--radius-sm) var(--radius-sm) 0 0;
 }
 
-/* Badge nel menu (es. carrello) */
+
 .nav-link .badge {
     margin-left: var(--spacing-xs);
 }
 
-/* ============================================
-   NAVBAR USER
-   ============================================ */
+
 .navbar-user {
     display: flex;
     align-items: center;
@@ -116,9 +105,7 @@
     font-weight: var(--font-weight-medium);
 }
 
-/* ============================================
-   MOBILE MENU TOGGLE
-   ============================================ */
+
 .navbar-toggle {
     display: none;
     background: none;
@@ -129,9 +116,7 @@
     padding: var(--spacing-xs);
 }
 
-/* ============================================
-   RESPONSIVE
-   ============================================ */
+
 @media (max-width: 968px) {
     .navbar-container {
         flex-wrap: wrap;

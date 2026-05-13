@@ -1,20 +1,12 @@
 <?php
-/**
- * CARRELLO.PHP — FIXED
- *
- * Fix: isGuest() ora funziona anche senza ?guest=1 nell'URL
- * perché la sessione guest è già in $_SESSION['guest'] = true.
- * Il parametro ?guest=1 serve solo per la prima visita.
- *
- * Fix: cap quantità robustificato
- */
+
 
 require_once '../includes/db.php';
 require_once '../includes/auth.php';
 require_once '../includes/functions.php';
 
-// Inizializza sessione guest solo alla PRIMA visita (parametro URL)
-// Nelle visite successive isGuest() legge già da $_SESSION
+
+
 if (isset($_GET['guest']) && $_GET['guest'] == '1' && !isLoggedIn() && !isGuest()) {
     loginGuest();
 }
@@ -41,9 +33,9 @@ foreach ($carrello as $key => $item) {
     $det = fetchOne($conn, $sql, [$item['idConfezionamento']]);
 
     if ($det) {
-        // Cap automatico sulla giacenza disponibile
+        
         $qtaEffettiva = min((int)$item['quantita'], (int)$det['giacenzaAttuale']);
-        if ($qtaEffettiva < 1) continue; // Prodotto esaurito — salta
+        if ($qtaEffettiva < 1) continue; 
 
         $sub         = $det['prezzo'] * $qtaEffettiva;
         $imponibile += $sub;
@@ -56,7 +48,7 @@ foreach ($carrello as $key => $item) {
     }
 }
 
-// IVA
+
 $ivaPerc   = IVA_DEFAULT;
 $ivaAmt    = round($imponibile * $ivaPerc / 100, 2);
 $totaleCon = round($imponibile + $ivaAmt, 2);

@@ -63,30 +63,6 @@ azienda-agricola/
 - MySQL 5.7+
 - Apache/Nginx
 
-### Setup Database
-
-```bash
-# Importa schema
-mysql -u root -p < sql/schema.sql
-
-# Importa trigger
-mysql -u root -p azienda_agricola < sql/trigger.sql
-
-# Importa dati esempio (opzionale)
-mysql -u root -p azienda_agricola < sql/seed.sql
-```
-
-### Configurazione
-
-Modifica `includes/db.php`:
-
-```php
-define('DB_HOST', 'localhost');
-define('DB_NAME', 'azienda_agricola');
-define('DB_USER', 'root');
-define('DB_PASS', '');
-```
-
 ## 👤 Credenziali Demo
 
 **Admin:**
@@ -101,7 +77,6 @@ define('DB_PASS', '');
 
 ### Tabelle Principali
 
-- **UTENTE**: Autenticazione e ruoli
 - **CLIENTE**: Anagrafica clienti
 - **CATEGORIA**: Categorie prodotti
 - **PRODOTTO**: Anagrafica prodotti

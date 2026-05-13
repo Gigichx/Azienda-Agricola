@@ -1,11 +1,6 @@
-/**
- * LAYOUT CSS
- * Azienda Agricola
- */
 
-/* ============================================
-   PAGE HEADER
-   ============================================ */
+
+
 .page-header {
     margin-bottom: var(--spacing-2xl);
 }
@@ -35,9 +30,7 @@
     margin-bottom: 0;
 }
 
-/* ============================================
-   SECTION
-   ============================================ */
+
 .section {
     margin-bottom: var(--spacing-2xl);
 }
@@ -68,9 +61,7 @@
     gap: var(--spacing-sm);
 }
 
-/* ============================================
-   GRID SYSTEM
-   ============================================ */
+
 .row {
     display: flex;
     flex-wrap: wrap;
@@ -103,9 +94,7 @@
     flex: 0 0 calc(66.666% - var(--spacing-lg) / 3);
 }
 
-/* ============================================
-   BOX/PANEL
-   ============================================ */
+
 .box {
     background-color: var(--color-bg-card);
     border: 2px solid var(--color-border-light);
@@ -129,7 +118,7 @@
 }
 
 .box-body {
-    /* Contenuto principale */
+    
 }
 
 .box-footer {
@@ -138,9 +127,7 @@
     border-top: 2px solid var(--color-border-light);
 }
 
-/* ============================================
-   SIDEBAR LAYOUT
-   ============================================ */
+
 .layout-sidebar {
     display: grid;
     grid-template-columns: 280px 1fr;
@@ -153,7 +140,7 @@
     padding: var(--spacing-lg);
     height: fit-content;
     position: sticky;
-    top: calc(var(--spacing-xl) + 60px); /* Offset per navbar */
+    top: calc(var(--spacing-xl) + 60px); 
 }
 
 .sidebar-title {
@@ -196,12 +183,10 @@
 }
 
 .main-area {
-    /* Area contenuto principale */
+    
 }
 
-/* ============================================
-   DIVIDER
-   ============================================ */
+
 .divider {
     height: 2px;
     background-color: var(--color-border-light);
@@ -216,9 +201,7 @@
     background-repeat: repeat-x;
 }
 
-/* ============================================
-   SPACER
-   ============================================ */
+
 .spacer-sm {
     height: var(--spacing-sm);
 }
@@ -239,9 +222,7 @@
     height: var(--spacing-2xl);
 }
 
-/* ============================================
-   RESPONSIVE
-   ============================================ */
+
 @media (max-width: 1024px) {
     .layout-sidebar {
         grid-template-columns: 1fr;

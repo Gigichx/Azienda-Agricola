@@ -1,8 +1,4 @@
 <?php
-/**
- * CLIENTI - Admin
- * Azienda Agricola
- */
 
 require_once '../includes/db.php';
 require_once '../includes/auth.php';
@@ -12,7 +8,6 @@ requireAdmin();
 
 $pageTitle = 'Clienti';
 
-// Clienti registrati (con account)
 $sqlRegistrati = "SELECT c.*, u.email as emailUtente, u.dataRegistrazione,
         COUNT(DISTINCT v.idVendita) as totaleOrdini,
         COALESCE(SUM(v.totalePagato), 0) as totaleSpeso
@@ -24,7 +19,6 @@ $sqlRegistrati = "SELECT c.*, u.email as emailUtente, u.dataRegistrazione,
         ORDER BY c.nome";
 $clienti = fetchAll($conn, $sqlRegistrati);
 
-// Cliente occasionale
 $clienteOccasionale = fetchOne($conn, "SELECT c.*, COUNT(v.idVendita) as totaleOrdini,
         COALESCE(SUM(v.totalePagato),0) as totaleSpeso
         FROM CLIENTE c

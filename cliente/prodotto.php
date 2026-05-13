@@ -1,8 +1,5 @@
 <?php
-/**
- * PRODOTTO.PHP - Dettaglio Prodotto — FIXED
- * Fix: messaggio chiaro se esaurito, prezzo preview corretto
- */
+
 
 require_once '../includes/db.php';
 require_once '../includes/auth.php';
@@ -19,7 +16,7 @@ if (!$idProdotto) {
     redirectWithMessage('/cliente/catalogo.php', 'Prodotto non trovato', 'error');
 }
 
-// Carica prodotto con giacenza totale (somma di tutti i confezionamenti disponibili)
+
 $prodotto = fetchOne($conn,
     "SELECT p.*, c.nome as nomeCategoria, c.idCategoria,
             COALESCE(SUM(conf.giacenzaAttuale), 0) as giacenzaTotale
@@ -40,7 +37,7 @@ if (!$prodotto) {
 
 $pageTitle  = $prodotto['nome'];
 
-// Solo i confezionamenti con giacenza > 0
+
 $confezioni = fetchAll($conn,
     "SELECT idConfezionamento, pesoNetto, prezzo, giacenzaAttuale,
             dataProduzione, dataConfezionamento
@@ -179,7 +176,7 @@ include '../includes/header_cliente.php';
                 <!-- Preview prezzo -->
                 <div id="prezzoPreview" class="mb-3" style="display:none">
                     <div class="d-inline-flex align-items-center gap-2 px-3 py-2 rounded"
-                         style="background:#f0fdf4;border:1px solid #bbf7d0">
+                         style="background:
                         <span class="text-muted small">Subtotale:</span>
                         <strong class="text-success" id="prezzoPreviewVal"></strong>
                     </div>
@@ -211,7 +208,7 @@ include '../includes/header_cliente.php';
 
 <script>
 (function() {
-    /* Aggiorna max quantità quando cambia la confezione */
+    
     document.getElementById('selConfezione')?.addEventListener('change', function() {
         const opt      = this.options[this.selectedIndex];
         const giacenza = parseInt(opt?.dataset?.giacenza) || 99;
@@ -226,9 +223,9 @@ include '../includes/header_cliente.php';
         aggiornaPrezzo();
     });
 
-    /* Aggiorna preview prezzo quando cambia la quantità */
+    
     document.getElementById('inputQta')?.addEventListener('input', function() {
-        /* Cap lunghezza */
+        
         if (this.value.length > 6) this.value = this.value.slice(0, 6);
         const max = parseInt(this.dataset.max || this.max) || 99;
         if (parseInt(this.value) > max) this.value = max;

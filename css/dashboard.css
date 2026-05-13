@@ -1,11 +1,6 @@
-/**
- * DASHBOARD CSS - Admin
- * Azienda Agricola
- */
 
-/* ============================================
-   DASHBOARD LAYOUT
-   ============================================ */
+
+
 .dashboard-kpis {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -31,9 +26,7 @@
     gap: var(--spacing-xl);
 }
 
-/* ============================================
-   AVVISI URGENTI
-   ============================================ */
+
 .avvisi-urgenti {
     background-color: var(--color-bg-card);
     border-radius: var(--radius-lg);
@@ -90,9 +83,7 @@
     font-size: var(--font-size-sm);
 }
 
-/* ============================================
-   ATTIVITÀ RECENTI
-   ============================================ */
+
 .attivita-recenti {
     background-color: var(--color-bg-card);
     border-radius: var(--radius-lg);
@@ -201,9 +192,7 @@
     font-weight: var(--font-weight-medium);
 }
 
-/* ============================================
-   RIEPILOGO GIACENZE
-   ============================================ */
+
 .giacenze-categoria {
     background-color: var(--color-bg-card);
     border-radius: var(--radius-lg);
@@ -258,9 +247,7 @@
     transition: width var(--transition-slow);
 }
 
-/* ============================================
-   STATISTICHE VELOCI
-   ============================================ */
+
 .stat-quick {
     display: flex;
     align-items: center;
@@ -302,9 +289,7 @@
     color: var(--color-text);
 }
 
-/* ============================================
-   RESPONSIVE
-   ============================================ */
+
 @media (max-width: 1200px) {
     .dashboard-kpis {
         grid-template-columns: repeat(2, 1fr);

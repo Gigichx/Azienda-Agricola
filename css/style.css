@@ -1,14 +1,9 @@
-/**
- * STYLE.CSS - Frontend Cliente
- * Azienda Agricola
- * 
- * File principale che importa tutti i CSS per l'area cliente
- */
 
-/* Base */
+
+
 @import url('base.css');
 
-/* Components */
+
 @import url('buttons.css');
 @import url('forms.css');
 @import url('alerts.css');
@@ -16,22 +11,20 @@
 @import url('tables.css');
 @import url('modals.css');
 
-/* Layout */
+
 @import url('layout.css');
 @import url('navbar.css');
 
-/* Pages - Cliente */
+
 @import url('catalogo.css');
 @import url('carrello.css');
 
-/* ============================================
-   CLIENTE SPECIFIC STYLES
-   ============================================ */
+
 .cliente-area {
-    /* Stili specifici per l'area cliente */
+    
 }
 
-/* Login/Registrazione */
+
 .auth-container {
     min-height: 100vh;
     display: flex;
@@ -116,7 +109,7 @@
     font-size: var(--font-size-sm);
 }
 
-/* Profilo Cliente */
+
 .profilo-container {
     max-width: 1000px;
     margin: 0 auto;
@@ -225,7 +218,7 @@
     color: var(--color-accent);
 }
 
-/* Responsive */
+
 @media (max-width: 768px) {
     .auth-box {
         border-radius: 0;

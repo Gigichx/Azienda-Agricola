@@ -1,8 +1,4 @@
 <?php
-/**
- * ARCHIVIO / REPORT - Admin
- * Azienda Agricola
- */
 
 require_once '../includes/db.php';
 require_once '../includes/auth.php';
@@ -12,18 +8,15 @@ requireAdmin();
 
 $pageTitle = 'Archivio e Report';
 
-// Filtri
 $categoriaFiltro = isset($_GET['categoria']) ? (int)$_GET['categoria'] : null;
 $idClienteFiltro = isset($_GET['id_cliente']) ? (int)$_GET['id_cliente'] : null;
 $dataDa          = $_GET['data_da'] ?? '';
 $dataA           = $_GET['data_a'] ?? '';
 $anno            = isset($_GET['anno']) ? (int)$_GET['anno'] : (int)date('Y');
 
-// Dati per filtri
 $categorie = fetchAll($conn, "SELECT * FROM CATEGORIA ORDER BY nome");
 $clienti   = fetchAll($conn, "SELECT idCliente, nome FROM CLIENTE ORDER BY nome");
 
-// Query report vendite
 $sql    = "SELECT v.*, c.nome as nomeCliente, l.nome as nomeLuogo,
            (SELECT GROUP_CONCAT(p.nome SEPARATOR ', ')
             FROM DETTAGLIO_VENDITA dv
@@ -35,7 +28,6 @@ $sql    = "SELECT v.*, c.nome as nomeCliente, l.nome as nomeLuogo,
            WHERE 1=1";
 $params = [];
 
-// Applica filtri temporali
 if (!empty($dataDa)) {
     $sql .= " AND DATE(v.dataVendita) >= ?";
     $params[] = $dataDa;
@@ -44,7 +36,6 @@ if (!empty($dataA)) {
     $sql .= " AND DATE(v.dataVendita) <= ?";
     $params[] = $dataA;
 }
-// Se non ci sono date specifiche, usa l'anno
 if (empty($dataDa) && empty($dataA)) {
     $sql .= " AND YEAR(v.dataVendita) = ?";
     $params[] = $anno;
@@ -68,7 +59,6 @@ $sql .= " ORDER BY v.dataVendita DESC LIMIT 100";
 
 $risultati = fetchAll($conn, $sql, $params);
 
-// Statistiche
 $totaleVendite = count($risultati);
 $importoTotale = array_sum(array_column($risultati, 'totalePagato'));
 

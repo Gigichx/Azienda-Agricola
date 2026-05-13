@@ -1,11 +1,6 @@
-/**
- * CATALOGO CSS
- * Azienda Agricola
- */
 
-/* ============================================
-   CATALOGO LAYOUT
-   ============================================ */
+
+
 .catalogo-container {
     display: flex;
     gap: var(--spacing-xl);
@@ -19,9 +14,7 @@
     flex: 1;
 }
 
-/* ============================================
-   FILTRI CATEGORIA
-   ============================================ */
+
 .categoria-filter {
     background-color: var(--color-bg-card);
     border-radius: var(--radius-lg);
@@ -77,9 +70,7 @@
     opacity: 0.7;
 }
 
-/* ============================================
-   CATALOGO HEADER
-   ============================================ */
+
 .catalogo-header {
     display: flex;
     justify-content: space-between;
@@ -116,18 +107,14 @@
     min-width: 200px;
 }
 
-/* ============================================
-   CATALOGO GRID
-   ============================================ */
+
 .catalogo-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: var(--spacing-lg);
 }
 
-/* ============================================
-   PRODOTTO DETTAGLIO
-   ============================================ */
+
 .prodotto-dettaglio {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -237,9 +224,7 @@
     gap: var(--spacing-sm);
 }
 
-/* ============================================
-   RESPONSIVE
-   ============================================ */
+
 @media (max-width: 1024px) {
     .catalogo-container {
         flex-direction: column;

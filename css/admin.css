@@ -1,11 +1,4 @@
-/* ============================================
-   ADMIN.CSS — Azienda Agricola
-   FIXED: rimossi conflitti con Bootstrap 5
-   - .modal -> .ag-modal
-   - .badge-success/error -> .ag-badge-*
-   - .form-input/.form-label -> .ag-form-*
-   - .btn-primary/.btn-light -> .ag-btn-*
-   ============================================ */
+
 
 :root {
     --ag-green:        #16a34a;
@@ -34,9 +27,7 @@ body {
 
 * { box-sizing: border-box; }
 
-/* ============================================
-   SIDEBAR
-   ============================================ */
+
 #sidebar {
     width: var(--ag-sidebar-w);
     min-height: 100vh;
@@ -110,9 +101,7 @@ body {
 }
 .x-small { font-size: .7rem; }
 
-/* ============================================
-   MAIN CONTENT
-   ============================================ */
+
 main.flex-grow-1.overflow-auto {
     max-height: 100vh;
     background: #f8fafc;
@@ -121,18 +110,14 @@ main.flex-grow-1.overflow-auto.p-4 {
     padding: 1.75rem 2rem !important;
 }
 
-/* ============================================
-   TOP BAR MOBILE
-   ============================================ */
+
 header.d-lg-none {
     background: #ffffff !important;
     border-bottom: 1px solid #e2e8f0 !important;
     box-shadow: var(--ag-shadow-sm);
 }
 
-/* ============================================
-   CARDS — sovrascriviamo Bootstrap minimalmente
-   ============================================ */
+
 .card {
     border-radius: var(--ag-radius) !important;
     border: 1px solid #e2e8f0 !important;
@@ -145,9 +130,7 @@ header.d-lg-none {
     border-bottom: 1px solid #f1f5f9 !important;
 }
 
-/* ============================================
-   KPI CARDS — Dashboard
-   ============================================ */
+
 .kpi-card {
     background: #ffffff;
     border-radius: var(--ag-radius);
@@ -216,9 +199,7 @@ header.d-lg-none {
     margin-bottom: 1.5rem;
 }
 
-/* ============================================
-   DASHBOARD LAYOUT
-   ============================================ */
+
 .dashboard-content {
     display: grid;
     grid-template-columns: 1fr 320px;
@@ -334,9 +315,7 @@ header.d-lg-none {
 .chart-title { font-size: .8125rem; font-weight: 700; color: #0f172a; margin: 0 0 1rem; }
 .chart-wrap { position: relative; }
 
-/* ============================================
-   TABLES
-   ============================================ */
+
 .table { font-size: .8125rem; color: #334155; }
 .table thead th {
     font-size: .68rem;
@@ -365,9 +344,7 @@ header.d-lg-none {
 }
 .table-container .table { margin: 0; }
 
-/* ============================================
-   BADGE — PREFISSO ag- per evitare conflitti BS5
-   ============================================ */
+
 .ag-badge-success {
     display: inline-flex;
     align-items: center;
@@ -405,9 +382,7 @@ header.d-lg-none {
     color: #78350f;
 }
 
-/* ============================================
-   BUTTONS — solo quelli NON presenti in BS5
-   ============================================ */
+
 .ag-btn-primary {
     background: var(--ag-green);
     border: 1px solid var(--ag-green);
@@ -441,7 +416,7 @@ header.d-lg-none {
 }
 .ag-btn-light:hover { background: #f1f5f9; }
 
-/* Pulsante cancella piccolo */
+
 .btn-danger-sm {
     display: inline-flex;
     align-items: center;
@@ -458,7 +433,7 @@ header.d-lg-none {
 }
 .btn-danger-sm:hover { background: var(--ag-red-light); border-color: var(--ag-red); }
 
-/* Azioni tabella */
+
 .action-btn,
 .btn-view {
     display: inline-flex;
@@ -481,9 +456,7 @@ header.d-lg-none {
     border-color: #cbd5e1;
 }
 
-/* ============================================
-   FORM HELPERS — prefisso ag- per evitare BS5
-   ============================================ */
+
 .ag-form-input {
     width: 100%;
     padding: .45rem .75rem;
@@ -510,7 +483,7 @@ header.d-lg-none {
 }
 .ag-form-label.required::after { content: ' *'; color: #dc2626; }
 
-/* Input group helper */
+
 .ag-input-group { display: flex; gap: 0; }
 .ag-input-group .ag-form-input { border-radius: 7px 0 0 7px; }
 .ag-input-group-append {
@@ -526,15 +499,11 @@ header.d-lg-none {
     white-space: nowrap;
 }
 
-/* ============================================
-   NUMBER INPUT — cap giacenza
-   ============================================ */
+
 input[type="number"].qty-input,
 input[name="quantita"] { text-align: center; }
 
-/* ============================================
-   ADMIN PAGE HEADER
-   ============================================ */
+
 .admin-page-header {
     display: flex;
     align-items: center;
@@ -550,24 +519,18 @@ input[name="quantita"] { text-align: center; }
 }
 .admin-page-actions { display: flex; gap: .5rem; align-items: center; }
 
-/* ============================================
-   PROGRESS
-   ============================================ */
+
 .progress { border-radius: 99px; background: #f1f5f9; height: 6px; }
 .progress-bar {
     border-radius: 99px;
     background: linear-gradient(90deg, var(--ag-green) 0%, #4ade80 100%);
 }
 
-/* ============================================
-   EMPTY STATE
-   ============================================ */
+
 .empty-state { text-align: center; padding: 3rem 1.5rem; color: #94a3b8; }
 .empty-state i { font-size: 2rem; margin-bottom: .75rem; }
 
-/* ============================================
-   TOAST
-   ============================================ */
+
 .toast-container {
     position: fixed;
     bottom: 1.5rem;
@@ -599,9 +562,7 @@ input[name="quantita"] { text-align: center; }
 .ag-toast-close:hover { opacity: 1; }
 @keyframes agToastIn { from { transform: translateX(20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 
-/* ============================================
-   FLASH ALERT
-   ============================================ */
+
 .flash-alert {
     display: flex;
     align-items: center;
@@ -620,9 +581,7 @@ input[name="quantita"] { text-align: center; }
 .flash-alert.flash-info    { background: #eff6ff; color: #1e3a5f; border-left-color: var(--ag-blue); }
 @keyframes flashIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
 
-/* ============================================
-   RISERVE
-   ============================================ */
+
 .riserve-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -666,9 +625,7 @@ input[name="quantita"] { text-align: center; }
 .riserva-meta p { margin: .25rem 0; display: flex; align-items: center; gap: .4rem; }
 .riserva-meta strong { color: #334155; font-weight: 600; min-width: 90px; display: inline-block; }
 
-/* ============================================
-   LUOGHI
-   ============================================ */
+
 .luoghi-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -731,9 +688,7 @@ input[name="quantita"] { text-align: center; }
     border-bottom: 1px solid #f1f5f9;
 }
 
-/* ============================================
-   CONFEZIONAMENTO TABLE
-   ============================================ */
+
 .conf-table-wrapper {
     background: #ffffff;
     border-radius: var(--ag-radius);
@@ -742,9 +697,7 @@ input[name="quantita"] { text-align: center; }
     overflow: hidden;
 }
 
-/* ============================================
-   PRODOTTI
-   ============================================ */
+
 .prodotti-container { }
 .prodotti-toolbar {
     display: flex;
@@ -758,9 +711,7 @@ input[name="quantita"] { text-align: center; }
 .prodotto-icon { font-size: 1.1rem; }
 .prodotto-nome { font-weight: 600; color: #1e293b; font-size: .8125rem; }
 
-/* ============================================
-   ARCHIVIO FILTRI
-   ============================================ */
+
 .archivio-container { }
 .archivio-filtri { margin-bottom: 1.5rem; }
 .filter-box {
@@ -787,16 +738,13 @@ input[name="quantita"] { text-align: center; }
 .risultati-count { font-size: .8125rem; color: #475569; }
 .export-actions { display: flex; gap: .5rem; }
 
-/* ============================================
-   MODAL CUSTOM (sistema AG) — rinominato .ag-modal
-   per non confondersi con Bootstrap .modal
-   ============================================ */
+
 .modal-overlay {
     display: none;
     position: fixed;
     inset: 0;
     background: rgba(15,23,42,.45);
-    z-index: 1055;           /* sopra Bootstrap che usa 1050 */
+    z-index: 1055;           
     align-items: center;
     justify-content: center;
     padding: 1rem;
@@ -805,7 +753,7 @@ input[name="quantita"] { text-align: center; }
 .modal-overlay.active { display: flex; }
 @keyframes agOverlayIn { from { opacity: 0; } to { opacity: 1; } }
 
-/* ===== IMPORTANTE: .ag-modal NON entra in conflitto con BS5 .modal ===== */
+
 .modal-overlay .ag-modal {
     background: #fff;
     border-radius: 14px;
@@ -850,9 +798,7 @@ input[name="quantita"] { text-align: center; }
     border-top: 1px solid #f1f5f9;
 }
 
-/* ============================================
-   LOADING OVERLAY
-   ============================================ */
+
 .loading-overlay {
     position: fixed;
     inset: 0;
@@ -871,9 +817,7 @@ input[name="quantita"] { text-align: center; }
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* ============================================
-   RIGA VENDITA DINAMICA (admin/vendite.php)
-   ============================================ */
+
 .riga-vendita {
     padding: .5rem .75rem;
     border-radius: 8px;
@@ -882,9 +826,7 @@ input[name="quantita"] { text-align: center; }
 }
 .riga-vendita:hover { border-color: #cbd5e1; }
 
-/* ============================================
-   MOBILE
-   ============================================ */
+
 @media (max-width: 991.98px) {
     #sidebar {
         position: fixed;
@@ -900,16 +842,14 @@ input[name="quantita"] { text-align: center; }
 }
 @media (max-width: 575px) { .dashboard-kpis { grid-template-columns: 1fr; } }
 
-/* ============================================
-   UTILITY
-   ============================================ */
+
 .text-green  { color: var(--ag-green) !important; }
 .text-amber  { color: var(--ag-amber) !important; }
 .bg-green-subtle { background: var(--ag-green-light) !important; }
 .text-right  { text-align: right; }
 .text-center { text-align: center; }
 
-/* Admin footer */
+
 .admin-footer { background: #fff; border-top: 1px solid #e2e8f0; padding: .6rem 1.5rem; margin-top: auto; }
 .admin-footer .footer-inner {
     display: flex;

@@ -1,9 +1,6 @@
-/* ============================================================
-   CLIENTE.CSS — Azienda Agricola
-   Design professionale area cliente
-   ============================================================ */
 
-/* ---- Variabili colori ---- */
+
+
 :root {
     --verde:        #2d7a45;
     --verde-light:  #e8f5ee;
@@ -17,7 +14,7 @@
     --radius-lg:    14px;
 }
 
-/* ---- Reset body ---- */
+
 body {
     background: #f6f8f5;
     font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
@@ -27,9 +24,7 @@ body {
     flex-direction: column;
 }
 
-/* ============================================================
-   NAVBAR
-   ============================================================ */
+
 .cliente-navbar {
     background: #fff;
     border-bottom: 1px solid var(--border);
@@ -70,7 +65,7 @@ body {
     background: var(--verde-light);
 }
 
-/* Bottone carrello */
+
 .nav-cart-btn {
     position: relative;
     display: inline-flex;
@@ -108,7 +103,7 @@ body {
     border: 2px solid #fff;
 }
 
-/* Bottone utente */
+
 .nav-user-btn {
     display: inline-flex;
     align-items: center;
@@ -140,16 +135,12 @@ body {
     flex-shrink: 0;
 }
 
-/* ============================================================
-   MAIN
-   ============================================================ */
+
 .cliente-main {
     flex: 1;
 }
 
-/* ============================================================
-   PAGINE AUTH (Login / Registrazione)
-   ============================================================ */
+
 .auth-page {
     min-height: 100vh;
     display: flex;
@@ -178,9 +169,7 @@ body {
     margin: 0 auto;
 }
 
-/* ============================================================
-   CATALOGO
-   ============================================================ */
+
 .catalogo-layout {
     display: grid;
     grid-template-columns: 220px 1fr;
@@ -188,7 +177,7 @@ body {
     align-items: start;
 }
 
-/* Sidebar categorie */
+
 .catalogo-sidebar {
     position: sticky;
     top: 80px;
@@ -242,7 +231,7 @@ body {
     color: var(--verde);
 }
 
-/* Header catalogo */
+
 .catalogo-header {
     display: flex;
     align-items: center;
@@ -261,14 +250,14 @@ body {
     margin: 0;
 }
 
-/* Griglia prodotti */
+
 .prodotti-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
     gap: 1.1rem;
 }
 
-/* Card prodotto */
+
 .product-card {
     background: #fff;
     border-radius: var(--radius);
@@ -387,7 +376,7 @@ body {
     pointer-events: none;
 }
 
-/* Empty state */
+
 .empty-state {
     text-align: center;
     padding: 4rem 2rem;
@@ -408,9 +397,7 @@ body {
 .empty-state h3 { font-size: 1.1rem; font-weight: 600; color: #374151; }
 .empty-state p  { font-size: .875rem; }
 
-/* ============================================================
-   CARRELLO
-   ============================================================ */
+
 .cart-item-icon {
     width: 52px;
     height: 52px;
@@ -424,7 +411,7 @@ body {
     flex-shrink: 0;
 }
 
-/* Riepilogo carrello */
+
 .cart-summary {
     background: #fff;
     border-radius: var(--radius);
@@ -462,9 +449,7 @@ body {
 .cart-total-value { font-weight: 800; font-size: 1.2rem; color: var(--verde); }
 .cart-iva-note { font-size: .73rem; color: var(--grigio); margin-top: .25rem; text-align: right; }
 
-/* ============================================================
-   CHECKOUT
-   ============================================================ */
+
 .checkout-step-card {
     background: #fff;
     border-radius: var(--radius);
@@ -496,9 +481,7 @@ body {
 }
 .checkout-step-body { padding: 1.25rem; }
 
-/* ============================================================
-   PROFILO
-   ============================================================ */
+
 .profile-header-card {
     background: #fff;
     border-radius: var(--radius-lg);
@@ -530,7 +513,7 @@ body {
 .profile-stat-value { font-size: 1.4rem; font-weight: 800; color: var(--verde); }
 .profile-stat-label { font-size: .78rem; color: var(--grigio); }
 
-/* Ordine card nel profilo */
+
 .ordine-card {
     background: #fff;
     border: 1px solid var(--border);
@@ -549,9 +532,7 @@ body {
 }
 .ordine-card-body { padding: 1rem 1.25rem; }
 
-/* ============================================================
-   BADGES & STATUS
-   ============================================================ */
+
 .badge-completato {
     background: #d1fae5;
     color: var(--verde);
@@ -569,9 +550,7 @@ body {
     font-weight: 600;
 }
 
-/* ============================================================
-   BOTTONI personalizzati
-   ============================================================ */
+
 .btn-verde {
     background: var(--verde);
     color: #fff;
@@ -582,9 +561,7 @@ body {
 }
 .btn-verde:hover { background: var(--verde-hover); color: #fff; }
 
-/* ============================================================
-   FOOTER
-   ============================================================ */
+
 .cliente-footer {
     background: #fff;
     border-top: 1px solid var(--border);
@@ -603,9 +580,7 @@ body {
 .footer-brand { font-weight: 600; color: #374151; }
 .footer-piva  { font-size: .78rem; }
 
-/* ============================================================
-   ADMIN FOOTER
-   ============================================================ */
+
 .admin-footer {
     background: #fff;
     border-top: 1px solid var(--border);
@@ -619,15 +594,11 @@ body {
     color: var(--grigio);
 }
 
-/* ============================================================
-   CARDS GENERICHE
-   ============================================================ */
+
 .card { border-radius: var(--radius) !important; }
 .shadow-sm { box-shadow: var(--shadow-sm) !important; }
 
-/* ============================================================
-   PRODOTTO DETTAGLIO
-   ============================================================ */
+
 .product-detail-img {
     height: 280px;
     background: linear-gradient(135deg, #f0faf4, #d1fae5);
@@ -640,9 +611,7 @@ body {
     border: 1px solid var(--border);
 }
 
-/* ============================================================
-   ORDINE CONFERMATO
-   ============================================================ */
+
 .success-icon {
     width: 80px;
     height: 80px;
@@ -656,9 +625,7 @@ body {
     margin: 0 auto 1rem;
 }
 
-/* ============================================================
-   RESPONSIVE
-   ============================================================ */
+
 @media (max-width: 768px) {
     .catalogo-layout {
         grid-template-columns: 1fr;

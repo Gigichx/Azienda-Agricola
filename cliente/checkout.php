@@ -1,13 +1,11 @@
 <?php
-/**
- * CHECKOUT.PHP - Cliente (solo utenti registrati)
- */
+
 
 require_once '../includes/db.php';
 require_once '../includes/auth.php';
 require_once '../includes/functions.php';
 
-// Il checkout è solo per clienti registrati
+
 if (!isCliente()) {
     if (isGuest()) {
         redirectWithMessage('/cliente/carrello.php', 'Devi effettuare il login per completare l\'ordine', 'warning');
@@ -51,12 +49,12 @@ foreach ($carrello as $item) {
     }
 }
 
-// IVA
+
 $ivaPerc   = IVA_DEFAULT;
 $ivaAmt    = round($imponibile * $ivaPerc / 100, 2);
 $totaleCon = round($imponibile + $ivaAmt, 2);
 
-// Dati cliente
+
 $cliente = fetchOne($conn,
     "SELECT c.* FROM CLIENTE c INNER JOIN UTENTE u ON c.idUtente = u.idUtente WHERE u.idUtente = ?",
     [getUserId()]

@@ -1,14 +1,11 @@
 <?php
-/**
- * CATALOGO - Cliente / Ospite — FIXED
- * Fix: query giacenze più robusta, UI badge disponibilità
- */
+
 
 require_once '../includes/db.php';
 require_once '../includes/auth.php';
 require_once '../includes/functions.php';
 
-// Inizializza sessione guest PRIMA di requireCliente()
+
 if (isset($_GET['guest']) && $_GET['guest'] == '1' && !isLoggedIn() && !isGuest()) {
     loginGuest();
 }
@@ -19,7 +16,7 @@ $pageTitle = 'Catalogo Prodotti';
 
 $categoriaFiltro = isset($_GET['categoria']) ? (int)$_GET['categoria'] : null;
 
-// Categorie per il menu laterale
+
 $sqlCategorie = "SELECT c.*, COUNT(p.idProdotto) as totaleProdotti
                  FROM CATEGORIA c
                  LEFT JOIN PRODOTTO p ON c.idCategoria = p.idCategoria
@@ -27,7 +24,7 @@ $sqlCategorie = "SELECT c.*, COUNT(p.idProdotto) as totaleProdotti
                  ORDER BY c.nome";
 $categorie = fetchAll($conn, $sqlCategorie);
 
-// Prodotti con giacenza — FIXED: usa COALESCE e raggruppa correttamente
+
 $sqlProdotti = "SELECT p.*, c.nome as nomeCategoria,
                 COALESCE(SUM(conf.giacenzaAttuale), 0) as giacenzaTotale,
                 COUNT(conf.idConfezionamento) as numConfezioni
@@ -44,11 +41,11 @@ $sqlProdotti = "SELECT p.*, c.nome as nomeCategoria,
 $params   = $categoriaFiltro ? [$categoriaFiltro] : [];
 $prodotti = fetchAll($conn, $sqlProdotti, $params);
 
-// Totale prodotti per "Tutti"
+
 $totaleQuery = fetchOne($conn, "SELECT COUNT(*) as tot FROM PRODOTTO");
 $totaleProdotti = $totaleQuery['tot'] ?? 0;
 
-// Nome categoria selezionata
+
 $categoriaNome = 'Tutti i Prodotti';
 if ($categoriaFiltro) {
     $catData = fetchOne($conn, "SELECT nome FROM CATEGORIA WHERE idCategoria = ?", [$categoriaFiltro]);
